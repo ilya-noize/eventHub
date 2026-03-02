@@ -4,6 +4,7 @@ import com.event.hub.model.Location;
 import com.event.hub.model.LocationMapper;
 import com.event.hub.model.LocationPostRequest;
 import com.event.hub.model.LocationResponse;
+import com.event.hub.service.LocationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;

@@ -1,4 +1,4 @@
-package com.event.hub.controller;
+package com.event.hub.service;
 
 import com.event.hub.entity.LocationEntity;
 import com.event.hub.model.Location;
