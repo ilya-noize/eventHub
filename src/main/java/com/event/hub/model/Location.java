@@ -4,7 +4,7 @@ public record Location(
         Long id,
         String name,
         String address,
-        String capacity,
+        Integer capacity,
         String description
 ) {
 }

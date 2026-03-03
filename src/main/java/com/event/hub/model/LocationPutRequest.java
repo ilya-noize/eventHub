@@ -7,7 +7,7 @@ public record LocationPutRequest(
         @NotNull Long id,
         @NotBlank String name,
         @NotBlank String address,
-        @NotBlank String capacity,
+        @NotBlank Integer capacity,
         @NotBlank String description
 ) {
 }
