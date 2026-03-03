@@ -26,14 +26,14 @@ public class LocationEntity {
     private Long id;
 
     @Column(name = "name", nullable = false, unique = true)
-    String name;
+    private String name;
 
     @Column(name = "address", nullable = false, unique = true)
-    String address;
+    private String address;
 
     @Column(name = "capacity", nullable = false)
-    String capacity;
+    private Integer capacity;
 
     @Column(name = "description", nullable = false)
-    String description;
+    private String description;
 }
