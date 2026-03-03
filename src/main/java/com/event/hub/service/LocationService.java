@@ -1,6 +1,7 @@
 package com.event.hub.service;
 
 import com.event.hub.entity.LocationEntity;
+import com.event.hub.filter.LocationSearchFilter;
 import com.event.hub.model.Location;
 import com.event.hub.model.LocationMapper;
 import com.event.hub.repository.LocationRepository;
@@ -15,6 +16,7 @@ import java.util.function.Supplier;
 @Service
 @RequiredArgsConstructor
 public class LocationService {
+    public static final int PAGE_SIZE_LOCATION_MINIMAL = 3;
     private final LocationMapper locationMapper;
     private final LocationRepository locationRepository;
 
@@ -38,6 +40,11 @@ public class LocationService {
         return locationMapper.toDomain(updated);
     }
 
+    public void delete(Long id) {
+        existsLocationById(id);
+        locationRepository.deleteById(id);
+    }
+
     public Location getLocationById(Long id) {
         LocationEntity entity = locationRepository.findById(id)
                 .orElseThrow(getEntityNotFoundExceptionSupplier(id));
@@ -45,15 +52,17 @@ public class LocationService {
         return locationMapper.toDomain(entity);
     }
 
-    public Page<Location> getAllLocation(Pageable pageable) {
-        Page<LocationEntity> all = locationRepository.findAll(pageable);
-
+    public Page<Location> getAllLocation(LocationSearchFilter filter) {
+        int pageSize = filter.pageSize() != null ? filter.pageSize() : PAGE_SIZE_LOCATION_MINIMAL;
+        int pageNumber = filter.pageNumber() != null ? filter.pageNumber() : 0;
+        Pageable pageable = Pageable
+                .ofSize(pageSize)
+                .withPage(pageNumber);
+        Page<LocationEntity> all = locationRepository.findAll(
+                filter.toSpecification(),
+                pageable
+        );
         return all.map(locationMapper::toDomain);
-    }
-
-    public void delete(Long id) {
-        existsLocationById(id);
-        locationRepository.deleteById(id);
     }
 
     private void existsLocationById(Long id) {
