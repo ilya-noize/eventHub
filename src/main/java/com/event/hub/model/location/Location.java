@@ -1,6 +1,6 @@
-package com.event.hub.model;
+package com.event.hub.model.location;
 
-public record LocationResponse(
+public record Location(
         Long id,
         String name,
         String address,

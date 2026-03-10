@@ -1,6 +1,6 @@
-package com.event.hub.repository;
+package com.event.hub.db;
 
-import com.event.hub.entity.LocationEntity;
+import com.event.hub.db.entity.LocationEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 

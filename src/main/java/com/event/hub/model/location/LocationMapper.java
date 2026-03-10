@@ -1,6 +1,7 @@
-package com.event.hub.model;
+package com.event.hub.model.location;
 
 import com.event.hub.db.entity.LocationEntity;
+import com.event.hub.model.OptionalMapper;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingConstants;

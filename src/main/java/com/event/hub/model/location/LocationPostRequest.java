@@ -1,4 +1,4 @@
-package com.event.hub.model;
+package com.event.hub.model.location;
 
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;

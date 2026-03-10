@@ -1,12 +1,12 @@
 package com.event.hub.controller;
 
 import com.event.hub.filter.LocationSearchFilter;
-import com.event.hub.model.Location;
-import com.event.hub.model.LocationMapper;
-import com.event.hub.model.LocationPatchRequest;
-import com.event.hub.model.LocationPostRequest;
-import com.event.hub.model.LocationPutRequest;
-import com.event.hub.model.LocationResponse;
+import com.event.hub.model.location.Location;
+import com.event.hub.model.location.LocationMapper;
+import com.event.hub.model.location.LocationPatchRequest;
+import com.event.hub.model.location.LocationPostRequest;
+import com.event.hub.model.location.LocationPutRequest;
+import com.event.hub.model.location.LocationResponse;
 import com.event.hub.service.LocationService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
