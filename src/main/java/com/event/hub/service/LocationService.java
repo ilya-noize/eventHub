@@ -1,17 +1,15 @@
 package com.event.hub.service;
 
-import com.event.hub.entity.LocationEntity;
+import com.event.hub.db.LocationRepository;
+import com.event.hub.db.entity.LocationEntity;
 import com.event.hub.filter.LocationSearchFilter;
 import com.event.hub.model.Location;
 import com.event.hub.model.LocationMapper;
-import com.event.hub.repository.LocationRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
-import java.util.function.Supplier;
 
 @Service
 @RequiredArgsConstructor
@@ -23,21 +21,35 @@ public class LocationService {
 
     public Location createLocation(Location location) {
         LocationEntity entity = locationMapper.toEntity(location);
-        LocationEntity saved = locationRepository.save(entity);
 
-        return locationMapper.toDomain(saved);
+        return saveAndMappedToDomain(entity);
     }
 
     public Location updateLocation(Long id, Location location) {
-        LocationEntity entity = locationMapper.toEntity(location);
-        if(!location.id().equals(id)) {
-            throw new IllegalArgumentException("Location ID:%s and ID:%s must be same."
-                    .formatted(location.id(), id));
-        }
+        isSameIds(id, location.id());
         existsLocationById(id);
-        LocationEntity updated = locationRepository.save(entity);
+        LocationEntity entity = locationMapper.toEntity(location);
 
-        return locationMapper.toDomain(updated);
+        return saveAndMappedToDomain(entity);
+    }
+
+    public Location patchLocation(Long id, Location location) {
+        isSameIds(id, location.id());
+        LocationEntity entity = findLocationById(id);
+        if (location.name() != null) {
+            entity.setName(location.name());
+        }
+        if (location.address() != null) {
+            entity.setAddress(location.address());
+        }
+        if (location.capacity() != null) {
+            entity.setCapacity(location.capacity());
+        }
+        if (location.description() != null) {
+            entity.setDescription(location.description());
+        }
+
+        return saveAndMappedToDomain(entity);
     }
 
     public void delete(Long id) {
@@ -46,9 +58,7 @@ public class LocationService {
     }
 
     public Location getLocationById(Long id) {
-        LocationEntity entity = locationRepository.findById(id)
-                .orElseThrow(getEntityNotFoundExceptionSupplier(id));
-
+        LocationEntity entity = findLocationById(id);
         return locationMapper.toDomain(entity);
     }
 
@@ -65,13 +75,26 @@ public class LocationService {
         return all.map(locationMapper::toDomain);
     }
 
-    private void existsLocationById(Long id) {
-        if(!locationRepository.existsById(id)) {
-            getEntityNotFoundExceptionSupplier(id);
+    private LocationEntity findLocationById(Long id) {
+        return locationRepository.findById(id).orElseThrow(
+                () -> new EntityNotFoundException("No such Location by ID:" + id)
+        );
+    }
+
+    private Location saveAndMappedToDomain(LocationEntity entity) {
+        return locationMapper.toDomain(locationRepository.save(entity));
+    }
+
+    private static void isSameIds(Long id, Long otherId) {
+        if (!otherId.equals(id)) {
+            throw new IllegalArgumentException("Location ID:%s and ID:%s must be same."
+                    .formatted(otherId, id));
         }
     }
 
-    private static Supplier<EntityNotFoundException> getEntityNotFoundExceptionSupplier(Long id) {
-        return () -> new EntityNotFoundException("No such Location by ID:" + id);
+    private void existsLocationById(Long id) {
+        if (!locationRepository.existsById(id)) {
+            throw new EntityNotFoundException("No such Location by ID:" + id);
+        }
     }
 }

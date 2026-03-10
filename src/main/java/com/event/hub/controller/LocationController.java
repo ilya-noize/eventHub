@@ -3,7 +3,9 @@ package com.event.hub.controller;
 import com.event.hub.filter.LocationSearchFilter;
 import com.event.hub.model.Location;
 import com.event.hub.model.LocationMapper;
+import com.event.hub.model.LocationPatchRequest;
 import com.event.hub.model.LocationPostRequest;
+import com.event.hub.model.LocationPutRequest;
 import com.event.hub.model.LocationResponse;
 import com.event.hub.service.LocationService;
 import jakarta.validation.Valid;
@@ -13,6 +15,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -51,6 +54,19 @@ public class LocationController {
                 id, locationMapper.toDomain(request)
         );
         return locationMapper.toResponse(updatedLocation);
+    }
+
+    @PatchMapping("/{id}")
+    public LocationResponse patchLocation(
+            @PathVariable Long id,
+            @RequestBody @Valid LocationPatchRequest patchRequest
+    ) {
+        log.debug("Received a request to patch a location by ID={}", id);
+        Location location = locationMapper.toDomain(patchRequest);
+
+        return locationMapper.toResponse(
+                locationService.patchLocation(id, location)
+        );
     }
 
     @DeleteMapping("/{id}")
