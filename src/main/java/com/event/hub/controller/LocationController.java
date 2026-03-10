@@ -6,6 +6,7 @@ import com.event.hub.model.LocationMapper;
 import com.event.hub.model.LocationPostRequest;
 import com.event.hub.model.LocationResponse;
 import com.event.hub.service.LocationService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
@@ -29,7 +30,7 @@ public class LocationController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public LocationResponse createLocation(
-            @RequestBody LocationPostRequest request
+            @RequestBody @Valid LocationPostRequest request
     ) {
         Location createdLocation = locationService.createLocation(
                 locationMapper.toDomain(request)
@@ -40,7 +41,7 @@ public class LocationController {
     @PutMapping("/{id}")
     public LocationResponse updateLocation(
             @PathVariable Long id,
-            @RequestBody LocationPostRequest request
+            @RequestBody @Valid LocationPutRequest request
     ) {
         Location updatedLocation = locationService.updateLocation(
                 id, locationMapper.toDomain(request)
