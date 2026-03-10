@@ -8,6 +8,7 @@ import com.event.hub.model.LocationResponse;
 import com.event.hub.service.LocationService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -23,6 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/locations")
 @RequiredArgsConstructor
+@Slf4j
 public class LocationController {
     private final LocationMapper locationMapper;
     private final LocationService locationService;
@@ -32,6 +34,7 @@ public class LocationController {
     public LocationResponse createLocation(
             @RequestBody @Valid LocationPostRequest request
     ) {
+        log.debug("Received a request to create a location {}", request.name());
         Location createdLocation = locationService.createLocation(
                 locationMapper.toDomain(request)
         );
@@ -43,6 +46,7 @@ public class LocationController {
             @PathVariable Long id,
             @RequestBody @Valid LocationPutRequest request
     ) {
+        log.debug("Received a request to update a location by ID={}", id);
         Location updatedLocation = locationService.updateLocation(
                 id, locationMapper.toDomain(request)
         );
@@ -57,6 +61,8 @@ public class LocationController {
 
     @GetMapping("/{id}")
     public LocationResponse getLocationById(@PathVariable Long id) {
+        log.debug("Received a request to get a location by ID={}", id);
+
         return locationMapper.toResponse(
                 locationService.getLocationById(id)
         );
@@ -64,6 +70,9 @@ public class LocationController {
 
     @GetMapping
     public Page<LocationResponse> getAllLocations(LocationSearchFilter filter) {
-        return locationService.getAllLocation(filter).map(locationMapper::toResponse);
+        log.debug("Received a request to get a locations by filter={}", filter.toLogMessage());
+
+        return locationService.getAllLocation(filter)
+                .map(locationMapper::toResponse);
     }
 }

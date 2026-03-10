@@ -1,9 +1,14 @@
 package com.event.hub.filter;
 
-import com.event.hub.entity.LocationEntity;
+import com.event.hub.db.entity.LocationEntity;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import org.springframework.data.jpa.domain.Specification;
+
+import java.lang.reflect.Field;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import static com.event.hub.service.LocationService.PAGE_SIZE_LOCATION_MINIMAL;
 
@@ -21,6 +26,7 @@ public record LocationSearchFilter(
         @Max(100)
         Integer pageSize
 ) {
+
     public Specification<LocationEntity> toSpecification() {
         return nameSpec()
                 .and(addressSpec())
@@ -47,10 +53,34 @@ public record LocationSearchFilter(
     }
 
     public Specification<LocationEntity> descriptionSpec() {
-        return ((root, query, criteriaBuilder) -> description!=null
-        ? criteriaBuilder.equal(root.get("description"), description)
+        return ((root, query, criteriaBuilder) -> description != null
+                ? criteriaBuilder.equal(root.get("description"), description)
                 : null);
     }
 
+    public String toLogMessage() {
+        Map<String, String> params = new HashMap<>();
 
+        try {
+            Field[] fields = this.getClass().getDeclaredFields();
+
+            for (Field field : fields) {
+                field.setAccessible(true);
+                String fieldName = field.getName();
+                Object value = field.get(this);
+                String valueStr = (value != null) ? value.toString() : "";
+
+                params.put(fieldName, valueStr);
+            }
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException("Ошибка при получении значений полей через рефлексию", e);
+        }
+
+        return params.entrySet().stream()
+                .filter(entry ->
+                        entry.getValue() != null && !entry.getValue().isEmpty())
+                .map(entry ->
+                        "%s:%s".formatted(entry.getKey(), entry.getValue()))
+                .collect(Collectors.joining(", "));
+    }
 }
