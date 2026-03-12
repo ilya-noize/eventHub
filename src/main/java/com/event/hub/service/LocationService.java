@@ -12,6 +12,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
+
 @Service
 @RequiredArgsConstructor
 public class LocationService {
@@ -40,18 +42,10 @@ public class LocationService {
     public Location patchLocation(Long id, Location location) {
         isSameIds(id, location.id());
         LocationEntity entity = findLocationById(id);
-        if (location.name() != null) {
-            entity.setName(location.name());
-        }
-        if (location.address() != null) {
-            entity.setAddress(location.address());
-        }
-        if (location.capacity() != null) {
-            entity.setCapacity(location.capacity());
-        }
-        if (location.description() != null) {
-            entity.setDescription(location.description());
-        }
+        Optional.ofNullable(location.name()).ifPresent(entity::setName);
+        Optional.ofNullable(location.address()).ifPresent(entity::setAddress);
+        Optional.ofNullable(location.capacity()).ifPresent(entity::setCapacity);
+        Optional.ofNullable(location.description()).ifPresent(entity::setDescription);
 
         return saveAndMappedToDomain(entity);
     }
