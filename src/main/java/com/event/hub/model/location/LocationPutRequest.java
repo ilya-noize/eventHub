@@ -22,7 +22,7 @@ public record LocationPutRequest(
         Integer capacity,
 
         @NotBlank
-        @Size(min=50, max=500)
+        @Size(min=50, max=255)
         String description
 ) {
 }

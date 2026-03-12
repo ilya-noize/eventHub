@@ -21,19 +21,15 @@ import lombok.Setter;
 @AllArgsConstructor
 public class LocationEntity extends SuperEntity {
 
-    @Column(name = "name", nullable = false, unique = true)
-    @Size(max = 64)
+    @Column(name = "name", nullable = false, unique = true,length = 64)
     private String name;
 
-    @Column(name = "address", nullable = false, unique = true)
-    @Size(max=127)
+    @Column(name = "address", nullable = false, unique = true, length = 127)
     private String address;
 
     @Column(name = "capacity", nullable = false)
-    @Min(5)
     private Integer capacity;
 
     @Column(name = "description", nullable = false)
-    @Size(min=50, max=500)
     private String description;
 }
