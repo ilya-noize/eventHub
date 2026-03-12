@@ -10,6 +10,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -19,12 +22,14 @@ public class LocationService {
     private final LocationRepository locationRepository;
 
 
+    @Transactional
     public Location createLocation(Location location) {
         LocationEntity entity = locationMapper.toEntity(location);
 
         return saveAndMappedToDomain(entity);
     }
 
+    @Transactional
     public Location updateLocation(Long id, Location location) {
         isSameIds(id, location.id());
         existsLocationById(id);
@@ -33,35 +38,31 @@ public class LocationService {
         return saveAndMappedToDomain(entity);
     }
 
+    @Transactional
     public Location patchLocation(Long id, Location location) {
         isSameIds(id, location.id());
         LocationEntity entity = findLocationById(id);
-        if (location.name() != null) {
-            entity.setName(location.name());
-        }
-        if (location.address() != null) {
-            entity.setAddress(location.address());
-        }
-        if (location.capacity() != null) {
-            entity.setCapacity(location.capacity());
-        }
-        if (location.description() != null) {
-            entity.setDescription(location.description());
-        }
+        Optional.ofNullable(location.name()).ifPresent(entity::setName);
+        Optional.ofNullable(location.address()).ifPresent(entity::setAddress);
+        Optional.ofNullable(location.capacity()).ifPresent(entity::setCapacity);
+        Optional.ofNullable(location.description()).ifPresent(entity::setDescription);
 
         return saveAndMappedToDomain(entity);
     }
 
+    @Transactional
     public void delete(Long id) {
         existsLocationById(id);
         locationRepository.deleteById(id);
     }
 
+    @Transactional(readOnly = true)
     public Location getLocationById(Long id) {
         LocationEntity entity = findLocationById(id);
         return locationMapper.toDomain(entity);
     }
 
+    @Transactional(readOnly = true)
     public Page<Location> getAllLocation(LocationSearchFilter filter) {
         int pageSize = filter.pageSize() != null ? filter.pageSize() : PAGE_SIZE_LOCATION_MINIMAL;
         int pageNumber = filter.pageNumber() != null ? filter.pageNumber() : 0;
