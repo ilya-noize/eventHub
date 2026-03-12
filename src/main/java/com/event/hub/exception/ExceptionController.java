@@ -47,20 +47,8 @@ public class ExceptionController {
     }
 
     private static ErrorResponse getErrorResponseAndLogging(HttpStatus httpStatus, String message, Exception e) {
-        Collector<StackTraceElement, StringBuilder, String> detailedMessageCollector = Collector.of(
-                StringBuilder::new,
-                (sb, element) -> sb.append(element).append(System.lineSeparator()),
-                StringBuilder::append,
-                StringBuilder::toString
-        );
-        String detailedMessage = Arrays.stream(e.getStackTrace())
-                .limit(STACKTRACE_MAX_LINES)
-                .collect(detailedMessageCollector);
-        log.error("Received the status {}, Message:{}, StackTrace:{}",
-                httpStatus,
-                e.getMessage(),
-                detailedMessage
-        );
+        log.error("Received the status {}, Message:{}", httpStatus, e.getMessage(), e);
+
         return ErrorResponse.builder()
                 .message(message)
                 .detailedMessage(e.getLocalizedMessage())
