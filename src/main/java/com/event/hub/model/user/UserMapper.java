@@ -1,11 +1,16 @@
 package com.event.hub.model.user;
 
+import com.event.hub.db.entity.UserEntity;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingConstants;
 
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
 public interface UserMapper {
+
+    UserEntity toEntity(User domain);
+
+    User toDomain(UserEntity entity);
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "role", ignore = true)
@@ -17,5 +22,4 @@ public interface UserMapper {
     User toDomain(UserCredentials credentials);
 
     UserResponse toResponse(User user);
-
 }

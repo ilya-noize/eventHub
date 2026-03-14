@@ -1,10 +1,13 @@
 package com.event.hub.model.user;
 
+import lombok.Builder;
+
+@Builder
 public record User(
         Long id,
         String login,
         String password,
-        String age,
+        Integer age,
         String role
 ) {
 }

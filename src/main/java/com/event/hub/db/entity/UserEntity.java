@@ -19,7 +19,7 @@ import lombok.Setter;
 @AllArgsConstructor
 public class UserEntity extends SuperEntity {
     @Column(name = "login", unique = true, nullable = false)
-    private String name;
+    private String login;
 
     @Column(name = "password", nullable = false)
     private String password;
