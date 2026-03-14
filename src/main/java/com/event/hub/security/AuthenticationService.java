@@ -1,6 +1,7 @@
 package com.event.hub.security;
 
 import com.event.hub.model.user.User;
+import com.event.hub.model.user.UserCredentials;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -17,14 +18,14 @@ public class AuthenticationService {
     private final AuthenticationManager authenticationManager;
     private final JwtTokenManager jwtTokenManager;
 
-    public String authenticateUser(User domain) {
-        authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        domain.login(),
-                        domain.password()
-                )
+    public String authenticateUser(UserCredentials credentials) {
+        var authentication = new UsernamePasswordAuthenticationToken(
+                credentials.login(),
+                credentials.password()
         );
-        return jwtTokenManager.generateToken(domain.login());
+        authenticationManager.authenticate(authentication);
+
+        return jwtTokenManager.generateToken(credentials.login());
     }
 
     public User getCurrentAuthenticatedUser() {

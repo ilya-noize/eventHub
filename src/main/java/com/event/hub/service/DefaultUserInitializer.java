@@ -4,21 +4,19 @@ import com.event.hub.db.entity.UserRole;
 import com.event.hub.model.user.User;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
 public class DefaultUserInitializer {
     private final UserService userService;
-    private final PasswordEncoder passwordEncoder;
 
     @PostConstruct
     public void init() {
         createUserIfNotExists(
                 User.builder()
                         .login("admin")
-                        .password(passwordEncoder.encode("admin"))
+                        .password("admin")
                         .age(99)
                         .role(UserRole.ADMIN.name())
                         .build()
@@ -26,7 +24,7 @@ public class DefaultUserInitializer {
         createUserIfNotExists(
                 User.builder()
                         .login("user")
-                        .password(passwordEncoder.encode("user"))
+                        .password("user")
                         .age(18)
                         .role(UserRole.USER.name())
                         .build()

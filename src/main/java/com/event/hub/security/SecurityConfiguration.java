@@ -1,8 +1,8 @@
 package com.event.hub.security;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -17,8 +17,11 @@ import org.springframework.security.web.SecurityFilterChain;
 @Configuration
 public class SecurityConfiguration {
 
-    @Autowired
-    private CustomUserDetailsService customUserDetailsService;
+    private final CustomUserDetailsService customUserDetailsService;
+
+    public SecurityConfiguration(CustomUserDetailsService customUserDetailsService) {
+        this.customUserDetailsService = customUserDetailsService;
+    }
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity security) {
@@ -32,8 +35,21 @@ public class SecurityConfiguration {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/users/**","/swagger-ui/**")
                         .permitAll()
+
+                        .requestMatchers(HttpMethod.POST, "/locations")
+                        .hasAuthority("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/locations/**")
+                        .hasAuthority("ADMIN")
+                        .requestMatchers(HttpMethod.PATCH, "/locations/**")
+                        .hasAuthority("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/locations/**")
+                        .hasAuthority("ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/locations/**")
+                        .hasAnyAuthority("ADMIN", "USER")
+
                         .requestMatchers("/locations/**")
                         .authenticated()
+
                         .anyRequest()
                         .permitAll()
                 );
