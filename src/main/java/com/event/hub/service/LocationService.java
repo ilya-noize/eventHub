@@ -21,6 +21,7 @@ public class LocationService {
     private final LocationMapper locationMapper;
     private final LocationRepository locationRepository;
 
+
     @Transactional
     public Location createLocation(Location location) {
         LocationEntity entity = locationMapper.toEntity(location);
@@ -62,7 +63,6 @@ public class LocationService {
     }
 
     @Transactional(readOnly = true)
-
     public Page<Location> getAllLocation(LocationSearchFilter filter) {
         int pageSize = filter.pageSize() != null ? filter.pageSize() : PAGE_SIZE_LOCATION_MINIMAL;
         int pageNumber = filter.pageNumber() != null ? filter.pageNumber() : 0;
