@@ -1,6 +1,7 @@
 package com.event.hub.exception;
 
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.validation.ValidationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
@@ -13,8 +14,6 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.stream.Collector;
 
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.FORBIDDEN;
@@ -26,15 +25,13 @@ import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 @RestControllerAdvice
 public class ExceptionController {
 
-    public static final int STACKTRACE_MAX_LINES = 10;
-
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(BAD_REQUEST)
     public ErrorResponse handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
         return getErrorResponseAndLogging(BAD_REQUEST, "Validate error", e);
     }
 
-    @ExceptionHandler(IllegalArgumentException.class)
+    @ExceptionHandler({IllegalArgumentException.class, ValidationException.class})
     @ResponseStatus(BAD_REQUEST)
     public ErrorResponse handleIllegalArgumentException(IllegalArgumentException e) {
         return getErrorResponseAndLogging(BAD_REQUEST, "Client error", e);
@@ -61,7 +58,6 @@ public class ExceptionController {
     @ExceptionHandler(Exception.class)
     @ResponseStatus(INTERNAL_SERVER_ERROR)
     public ErrorResponse handleException(Exception e) {
-        log.error("INTERNAL_SERVER_ERROR. Class={}", e.getClass(), e);
         return getErrorResponseAndLogging(INTERNAL_SERVER_ERROR, "Server error", e);
     }
 
