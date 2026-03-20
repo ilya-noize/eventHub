@@ -1,9 +1,11 @@
 package com.event.hub.security;
 
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtParser;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -15,6 +17,7 @@ import java.util.Date;
  *
  */
 @Component
+@Slf4j
 public class JwtTokenManager {
     private final SecretKey key;
     private final long expirationTime;
@@ -47,18 +50,39 @@ public class JwtTokenManager {
     }
 
     /**
-     * Получение логина из токена.
-     * <p>
-     * Как подтверждение принадлежности логина к этой электронной подписи.
+     * Получение полезной нагрузки из токена.
      * @param token токен
      * @return логин
      */
-    public String getLoginFromToken(String token) {
+    public Claims getClaims(String token) {
         JwtParser parser = Jwts.parser()
                 .verifyWith(key)
                 .build();
         return parser.parseSignedClaims(token)
+                .getPayload();
+    }
+
+    public boolean validateToken(String token) {
+        try {
+            JwtParser parser = Jwts.parser()
+                    .verifyWith(key)
+                    .build();
+            parser.parseSignedClaims(token);
+            return !isTokenExpired(token);
+        } catch (Exception e){
+            log.warn("Token validation failed: {}",e.getMessage());
+            return false;
+        }
+
+    }
+
+    private boolean isTokenExpired(String token){
+        Date expiration = Jwts.parser()
+                .verifyWith(key)
+                .build()
+                .parseSignedClaims(token)
                 .getPayload()
-                .getSubject();
+                .getExpiration();
+        return expiration.before(new Date());
     }
 }
