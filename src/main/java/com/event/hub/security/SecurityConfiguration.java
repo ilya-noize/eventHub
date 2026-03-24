@@ -31,27 +31,30 @@ public class SecurityConfiguration {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity security) {
+        String admin = UserRole.ADMIN.name();
+        String user = UserRole.USER.name();
         security
                 .formLogin(AbstractHttpConfigurer::disable)
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/users/**", "/swagger-ui/**")
-                        .permitAll()
-                        .requestMatchers(HttpMethod.POST, "/locations")
-                        .hasAuthority(UserRole.ADMIN.name())
-                        .requestMatchers(HttpMethod.PUT, "/locations/**")
-                        .hasAuthority(UserRole.ADMIN.name())
-                        .requestMatchers(HttpMethod.PATCH, "/locations/**")
-                        .hasAuthority(UserRole.ADMIN.name())
-                        .requestMatchers(HttpMethod.DELETE, "/locations/**")
-                        .hasAuthority(UserRole.ADMIN.name())
-                        .requestMatchers("/locations/**")
-                        .authenticated()
-                        .anyRequest()
-                        .permitAll()
+                .authorizeHttpRequests(auth ->
+                        auth
+                                .requestMatchers("/swagger-ui/**").permitAll()
+
+                                .requestMatchers(HttpMethod.POST, "/users").permitAll()
+                                .requestMatchers(HttpMethod.POST, "/users/**").permitAll()
+                                .requestMatchers(HttpMethod.GET, "/users/**").hasAuthority(admin)
+
+                                .requestMatchers(HttpMethod.POST, "/locations").hasAuthority(admin)
+                                .requestMatchers(HttpMethod.PUT, "/locations/**").hasAuthority(admin)
+                                .requestMatchers(HttpMethod.PATCH, "/locations/**").hasAuthority(admin)
+                                .requestMatchers(HttpMethod.DELETE, "/locations/**").hasAuthority(admin)
+                                .requestMatchers("/locations/**").hasAnyAuthority(admin, user)
+
+                                .anyRequest().authenticated()
+
                 )
                 .addFilterBefore(jwtTokenFilter, AnonymousAuthenticationFilter.class);
 

@@ -9,7 +9,6 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,7 +30,6 @@ public class LocationService {
     }
 
     @Transactional
-    @Modifying
     public Location updateLocation(Long id, Location location) {
         LocationEntity existedLocation = findLocationById(id);
         LocationEntity entity = locationMapper.toEntity(location);
@@ -41,7 +39,6 @@ public class LocationService {
     }
 
     @Transactional
-    @Modifying
     public Location patchLocation(Long id, Location location) {
         isSameIds(id, location.id());
         LocationEntity entity = findLocationById(id);
@@ -57,7 +54,6 @@ public class LocationService {
     }
 
     @Transactional
-    @Modifying
     public void delete(Long id) {
         existsLocationById(id);
         locationRepository.deleteById(id);

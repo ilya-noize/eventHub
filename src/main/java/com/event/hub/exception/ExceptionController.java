@@ -33,7 +33,7 @@ public class ExceptionController {
 
     @ExceptionHandler({IllegalArgumentException.class, ValidationException.class})
     @ResponseStatus(BAD_REQUEST)
-    public ErrorResponse handleIllegalArgumentException(IllegalArgumentException e) {
+    public ErrorResponse handleIllegalArgumentException(Exception e) {
         return getErrorResponseAndLogging(BAD_REQUEST, "Client error", e);
     }
 
@@ -46,7 +46,7 @@ public class ExceptionController {
     @ExceptionHandler({AuthenticationException.class, BadCredentialsException.class})
     @ResponseStatus(UNAUTHORIZED)
     public ErrorResponse handleBadCredentialsException(Exception e) {
-        return getErrorResponseAndLogging(UNAUTHORIZED, "Authorize failed", e);
+        return getErrorResponseAndLogging(UNAUTHORIZED, "Authentication failed", e);
     }
 
     @ExceptionHandler({AccessDeniedException.class})
@@ -66,7 +66,7 @@ public class ExceptionController {
 
         return ErrorResponse.builder()
                 .message(message)
-                .detailedMessage(e.getLocalizedMessage())
+                .detailedMessage(e.getMessage())
                 .dateTime(LocalDateTime.now()).build();
     }
 }

@@ -64,25 +64,16 @@ public class JwtTokenManager {
 
     public boolean validateToken(String token) {
         try {
-            JwtParser parser = Jwts.parser()
-                    .verifyWith(key)
-                    .build();
-            parser.parseSignedClaims(token);
             return !isTokenExpired(token);
-        } catch (Exception e){
-            log.warn("Token validation failed: {}",e.getMessage());
+        } catch (Exception e) {
+            log.warn("Token validation failed: {}", e.getMessage());
             return false;
         }
 
     }
 
-    private boolean isTokenExpired(String token){
-        Date expiration = Jwts.parser()
-                .verifyWith(key)
-                .build()
-                .parseSignedClaims(token)
-                .getPayload()
-                .getExpiration();
+    private boolean isTokenExpired(String token) {
+        Date expiration = getClaims(token).getExpiration();
         return expiration.before(new Date());
     }
 }
