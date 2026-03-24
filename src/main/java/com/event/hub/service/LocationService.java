@@ -31,10 +31,10 @@ public class LocationService {
 
     @Transactional
     public Location updateLocation(Long id, Location location) {
-        isSameIds(id, location.id());
-        existsLocationById(id);
+        LocationEntity existedLocation = findLocationById(id);
         LocationEntity entity = locationMapper.toEntity(location);
-
+        entity.setId(id);
+        capacityNotLessThanBefore(entity.getCapacity(), existedLocation);
         return saveAndMappedToDomain(entity);
     }
 
@@ -44,7 +44,10 @@ public class LocationService {
         LocationEntity entity = findLocationById(id);
         Optional.ofNullable(location.name()).ifPresent(entity::setName);
         Optional.ofNullable(location.address()).ifPresent(entity::setAddress);
-        Optional.ofNullable(location.capacity()).ifPresent(entity::setCapacity);
+        Optional.ofNullable(location.capacity()).ifPresent(capacity -> {
+            capacityNotLessThanBefore(capacity, entity);
+            entity.setCapacity(capacity);
+        });
         Optional.ofNullable(location.description()).ifPresent(entity::setDescription);
 
         return saveAndMappedToDomain(entity);
@@ -74,6 +77,12 @@ public class LocationService {
                 pageable
         );
         return all.map(locationMapper::toDomain);
+    }
+
+    private static void capacityNotLessThanBefore(Integer capacity, LocationEntity entity) {
+        if (entity.getCapacity() > capacity) {
+            throw new IllegalStateException("New Capacity can't less than old one");
+        }
     }
 
     private LocationEntity findLocationById(Long id) {

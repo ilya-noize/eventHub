@@ -13,12 +13,11 @@ public record LocationPostRequest(
         @Size(max = 127)
         String address,
 
-        @NotBlank
         @Min(5)
         Integer capacity,
 
         @NotBlank
-        @Size(min=50, max=255)
+        @Size(max=255)
         String description
 ) {
 }

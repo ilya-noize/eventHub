@@ -17,6 +17,7 @@ public interface LocationMapper {
     @Mapping(target = "id", ignore = true)
     Location toDomain(LocationPostRequest request);
 
+    @Mapping(target = "id", ignore = true)
     Location toDomain(LocationPutRequest request);
 
     Location toDomain(LocationPatchRequest request);

@@ -1,5 +1,15 @@
 # eventHub
 
+##environments
+
+| name              | value                                                                                                        |
+|-------------------|--------------------------------------------------------------------------------------------------------------|
+| POSTGRES_USER     | root                                                                                                         |
+| POSTGRES_PASSWORD | root                                                                                                         |
+| JWT_SECRET_KEY    | [Free JWT Secret Key Generator / Secure HS256, HS384, HS512 Keys Online](https://jwtsecretkeygenerator.com/) |
+| JWT_LIFETIME      | 300                                                                                                          |
+
+
 ## docker
 
 | parameters        | value      |
@@ -20,5 +30,5 @@ docker run --name eventHub -e POSTGRES_DB=eventHubDB -e POSTGRES_USER=root -e PO
 ### executed postgres in container
 
 ```bash
-docker exec -it eventHub psql -U postgres
+docker exec -it eventHub psql -U root eventHubDB
 ```

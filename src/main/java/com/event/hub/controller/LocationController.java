@@ -12,6 +12,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
+import org.springframework.data.web.config.EnableSpringDataWebSupport;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,10 +25,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import static org.springframework.data.web.config.EnableSpringDataWebSupport.PageSerializationMode.VIA_DTO;
+
 @RestController
 @RequestMapping("/locations")
 @RequiredArgsConstructor
 @Slf4j
+@EnableSpringDataWebSupport(pageSerializationMode = VIA_DTO)
 public class LocationController {
     private final LocationMapper locationMapper;
     private final LocationService locationService;
@@ -37,19 +41,20 @@ public class LocationController {
     public LocationResponse createLocation(
             @RequestBody @Valid LocationPostRequest request
     ) {
-        log.debug("Received a request to create a location {}", request.name());
+        log.info("Received a request to create a location {}", request.name());
         Location createdLocation = locationService.createLocation(
                 locationMapper.toDomain(request)
         );
         return locationMapper.toResponse(createdLocation);
     }
 
+
     @PutMapping("/{id}")
     public LocationResponse updateLocation(
             @PathVariable Long id,
             @RequestBody @Valid LocationPutRequest request
     ) {
-        log.debug("Received a request to update a location by ID={}", id);
+        log.info("Received a request to update a location by ID={}", id);
         Location updatedLocation = locationService.updateLocation(
                 id, locationMapper.toDomain(request)
         );
@@ -61,7 +66,7 @@ public class LocationController {
             @PathVariable Long id,
             @RequestBody @Valid LocationPatchRequest patchRequest
     ) {
-        log.debug("Received a request to patch a location by ID={}", id);
+        log.info("Received a request to patch a location by ID={}", id);
         Location location = locationMapper.toDomain(patchRequest);
 
         return locationMapper.toResponse(
@@ -77,7 +82,7 @@ public class LocationController {
 
     @GetMapping("/{id}")
     public LocationResponse getLocationById(@PathVariable Long id) {
-        log.debug("Received a request to get a location by ID={}", id);
+        log.info("Received a request to get a location by ID={}", id);
 
         return locationMapper.toResponse(
                 locationService.getLocationById(id)
@@ -86,7 +91,7 @@ public class LocationController {
 
     @GetMapping
     public Page<LocationResponse> getAllLocations(LocationSearchFilter filter) {
-        log.debug("Received a request to get a locations by filter={}", filter.toLogMessage());
+        log.info("Received a request to get a locations by filter={}", filter.toLogMessage());
 
         return locationService.getAllLocation(filter)
                 .map(locationMapper::toResponse);
