@@ -40,8 +40,10 @@ public class LocationService {
     public Location patchLocation(Long id, Location location) {
         isSameIds(id, location.id());
         LocationEntity entity = findLocationById(id);
-        Optional.ofNullable(location.name()).ifPresent(entity::setName);
-        Optional.ofNullable(location.address()).ifPresent(entity::setAddress);
+        if (isUniqueNameAndAddressLocation(location)) {
+            Optional.ofNullable(location.name()).ifPresent(entity::setName);
+            Optional.ofNullable(location.address()).ifPresent(entity::setAddress);
+        }
         Optional.ofNullable(location.capacity()).ifPresent(capacity -> {
             capacityNotLessThanBefore(capacity, entity);
             entity.setCapacity(capacity);
@@ -70,6 +72,31 @@ public class LocationService {
                 filter.toPageable()
         );
         return all.map(locationMapper::toDomain);
+    }
+
+    public boolean isUniqueNameAndAddressLocation(Location location) {
+        return !locationRepository.existsByNameOrAddress(
+                location.name(),
+                location.address()
+        );
+    }
+
+    /**
+     * Verify that the number of available seats does not exceed those specified by a given
+     */
+    public Location getConfirmedLocationForEventCapacity(Long locationId, Integer eventMaxPlaces) {
+        Location location = getLocationById(locationId);
+        Integer locationCapacity = location.capacity();
+        if (locationCapacity < eventMaxPlaces) {
+            throw new IllegalArgumentException("%s places is more than %s capacity in %s place ID=%s"
+                    .formatted(
+                            eventMaxPlaces,
+                            locationCapacity,
+                            location.name(),
+                            location.id()
+                    ));
+        }
+        return location;
     }
 
     private static void capacityNotLessThanBefore(Integer capacity, LocationEntity entity) {

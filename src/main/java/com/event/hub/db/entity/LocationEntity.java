@@ -25,7 +25,7 @@ public class LocationEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     protected Long id;
 
-    @Column(name = "name", nullable = false, unique = true, length = 64)
+    @Column(name = "name", nullable = false, unique = true, length = 127)
     private String name;
 
     @Column(name = "address", nullable = false, unique = true, length = 127)
