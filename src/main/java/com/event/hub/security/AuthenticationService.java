@@ -35,4 +35,15 @@ public class AuthenticationService {
         );
         return (User) authentication.getPrincipal();
     }
+
+    public Long getCurrentAuthenticatedUserId() {
+        return getCurrentAuthenticatedUser().getId();
+    }
+
+    public void verifyAuthenticatedUserAsOwnerResource(Long ownerId) {
+        Long authUserId = getCurrentAuthenticatedUserId();
+        if (!ownerId.equals(authUserId)) {
+            throw new SecurityException("The owner of the resource is another user");
+        }
+    }
 }
