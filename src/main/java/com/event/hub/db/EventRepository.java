@@ -26,7 +26,7 @@ public interface EventRepository extends
     @Query("""
         UPDATE EventEntity e
         SET e.occupiedPlaces = e.occupiedPlaces + 1
-        WHERE e.id=:id AND e.maxPlaces >= e.occupiedPlaces
+        WHERE e.id=:id AND e.maxPlaces > e.occupiedPlaces
         """)
     boolean occupyEmptyPlace(Long id);
 }

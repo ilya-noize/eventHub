@@ -20,9 +20,9 @@ import lombok.Setter;
 @AllArgsConstructor
 public class EventRegistrationEntity extends SuperEntity {
 
-    @ManyToOne
+    @ManyToOne(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
     @JoinColumn(
-            name="user_id",
+            name = "user_id",
             nullable = false,
             referencedColumnName = "id"
     )
@@ -30,8 +30,8 @@ public class EventRegistrationEntity extends SuperEntity {
 
     @ManyToOne(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
     @JoinColumn(
-            name="event_id",
-            nullable=false,
+            name = "event_id",
+            nullable = false,
             referencedColumnName = "id"
     )
     private EventEntity event;

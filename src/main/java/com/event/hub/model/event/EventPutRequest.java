@@ -1,6 +1,7 @@
 package com.event.hub.model.event;
 
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -18,6 +19,7 @@ public record EventPutRequest(
         Integer maxPlaces,
 
         @NotNull @Future
+        @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX")
         LocalDateTime date,
 
         @NotNull @PositiveOrZero

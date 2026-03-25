@@ -20,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class EventRegistrationService {
     private final AuthenticationService authenticationService;
+    private final EventService eventService;
     private final EventRepository eventRepository;
     private final EventRegistrationRepository eventRegistrationRepository;
     private final EventMapper eventMapper;
@@ -35,23 +36,24 @@ public class EventRegistrationService {
 
     @Transactional
     public void registrationEvent(Long eventId) {
-        EventEntity event = eventRepository.findById(eventId).orElseThrow(
-                () -> new EntityNotFoundException(String.format("No such event ID=%s", eventId))
-        );
+        EventEntity event = eventMapper.toEntity(eventService.getEventById(eventId));
         UserEntity user = userMapper.toEntity(authenticationService.getCurrentAuthenticatedUser());
         if (!event.getOwner().getId().equals(user.getId())) {
             throw new IllegalArgumentException("Owner can't register to his own events");
         }
-        if (!eventRepository.occupyEmptyPlace(eventId)) {
-            throw new IllegalStateException("Not enough places");
+        try {
+            eventRepository.occupyEmptyPlace(eventId);
+        } catch (Exception e) {
+            throw new IllegalStateException("Registered to his event is failed", e);
         }
         eventRegistrationRepository.save(new EventRegistrationEntity(user, event));
     }
 
     public void cancelRegisteredUserFromTheListParticipantsInThisEventById(Long eventId) {
-        UserEntity user = userMapper.toEntity(authenticationService.getCurrentAuthenticatedUser());
+        EventEntity event = eventMapper.toEntity(eventService.getEventById(eventId));
+        Long authenticatedUserId = authenticationService.getCurrentAuthenticatedUserId();
         EventRegistrationEntity registration = eventRegistrationRepository
-                .findByUser_IdAndEvent_Id(user.getId(), eventId)
+                .findByUser_IdAndEvent(authenticatedUserId, event)
                 .orElseThrow(() -> new EntityNotFoundException("You are not registered in this event ID=%s"
                         .formatted(eventId)
                 ));
