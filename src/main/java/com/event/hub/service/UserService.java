@@ -21,12 +21,12 @@ public class UserService {
 
     @Transactional
     public User registrationUser(User domain) {
-        if (isUserExistsByLogin(domain.login())) {
+        if (isUserExistsByLogin(domain.getUsername())) {
             throw new ValidationException("Login already taken");
         }
         UserEntity entity = userMapper.toEntity(domain);
         if (entity.getRole() == null) entity.setRole(UserRole.USER.name());
-        entity.setPassword(passwordEncoder.encode(domain.password()));
+        entity.setPassword(passwordEncoder.encode(domain.getPassword()));
         userRepository.save(entity);
 
         return userMapper.toDomain(entity);
@@ -37,9 +37,10 @@ public class UserService {
     }
 
     public User getUserById(Long id) {
-        UserEntity user = userRepository.findById(id).orElseThrow(
+        return userRepository.findById(id)
+                .map(userMapper::toDomain)
+                .orElseThrow(
                 () -> new EntityNotFoundException("No such User ID=%s".formatted(id))
         );
-        return userMapper.toDomain(user);
     }
 }
