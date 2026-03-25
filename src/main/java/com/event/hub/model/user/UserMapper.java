@@ -8,6 +8,8 @@ import org.mapstruct.MappingConstants;
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
 public interface UserMapper {
 
+    @Mapping(target = "registrations", ignore = true)
+    @Mapping(target = "events", ignore = true)
     UserEntity toEntity(User domain);
 
     User toDomain(UserEntity entity);
