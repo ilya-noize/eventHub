@@ -8,7 +8,6 @@ import com.event.hub.model.location.LocationMapper;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,7 +16,6 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 public class LocationService {
-    public static final int PAGE_SIZE_LOCATION_MINIMAL = 3;
     private final LocationMapper locationMapper;
     private final LocationRepository locationRepository;
 
@@ -67,14 +65,9 @@ public class LocationService {
 
     @Transactional(readOnly = true)
     public Page<Location> getAllLocation(LocationSearchFilter filter) {
-        int pageSize = filter.pageSize() != null ? filter.pageSize() : PAGE_SIZE_LOCATION_MINIMAL;
-        int pageNumber = filter.pageNumber() != null ? filter.pageNumber() : 0;
-        Pageable pageable = Pageable
-                .ofSize(pageSize)
-                .withPage(pageNumber);
         Page<LocationEntity> all = locationRepository.findAll(
                 filter.toSpecification(),
-                pageable
+                filter.toPageable()
         );
         return all.map(locationMapper::toDomain);
     }
