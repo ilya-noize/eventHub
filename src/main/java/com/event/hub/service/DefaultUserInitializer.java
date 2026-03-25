@@ -34,7 +34,7 @@ public class DefaultUserInitializer {
     }
 
     private void createUserIfNotExists(User user) {
-        if (userService.isUserExistsByLogin(user.login())) {
+        if (userService.isUserExistsByLogin(user.getUsername())) {
             return;
         }
         userService.registrationUser(user);
