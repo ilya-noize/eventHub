@@ -4,15 +4,20 @@ package com.event.hub.db.entity;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.Set;
 
 @Entity
 @Table(name = "events")
@@ -23,31 +28,34 @@ import lombok.Setter;
 @AllArgsConstructor
 public class EventEntity extends SuperEntity {
 
-    @Column(name = "", nullable = false)
+    @Column(name = "name", nullable = false)
     private String name;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY, cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
     private UserEntity owner;
 
     @Column(name = "max_places", nullable = false)
-    private String maxPlaces;
+    private Integer maxPlaces;
 
-    @Column(name = "occupied_places", nullable = false)
-    private String occupiedPlaces;
+    @Column(name = "occupied_place", nullable = false)
+    private Integer occupiedPlaces;
+
+    @OneToMany(mappedBy = "event")
+    private Set<EventRegistrationEntity> registrations;
 
     @Column(name = "date", nullable = false)
-    private String date;
+    private LocalDateTime date;
 
     @Column(name = "cost", nullable = false)
-    private String cost;
+    private BigDecimal cost;
 
     @Column(name = "duration", nullable = false)
     private String duration;
 
-    @ManyToOne(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
+    @ManyToOne(fetch = FetchType.LAZY, cascade = {CascadeType.MERGE, CascadeType.PERSIST})
+    @JoinColumn(name="location_id")
     private LocationEntity location;
 
     @Column(name = "status", nullable = false)
-    @Enumerated(EnumType.STRING)
-    private EventStatus status = EventStatus.WAIT_START;
+    private String status;
 }

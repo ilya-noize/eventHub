@@ -2,9 +2,10 @@ package com.event.hub.db.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -19,9 +20,12 @@ import lombok.Setter;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class LocationEntity extends SuperEntity {
+public class LocationEntity {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    protected Long id;
 
-    @Column(name = "name", nullable = false, unique = true,length = 64)
+    @Column(name = "name", nullable = false, unique = true, length = 64)
     private String name;
 
     @Column(name = "address", nullable = false, unique = true, length = 127)
