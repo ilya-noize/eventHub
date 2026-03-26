@@ -6,7 +6,6 @@ import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
-import jakarta.validation.constraints.PositiveOrZero;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -22,11 +21,11 @@ public record EventPutRequest(
         @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX")
         LocalDateTime date,
 
-        @NotNull @PositiveOrZero
+        @NotNull @Positive
         BigDecimal cost,
 
-        @NotBlank
-        String duration,
+        @NotNull @Positive
+        Integer duration,
 
         @NotNull @Positive
         Long locationId

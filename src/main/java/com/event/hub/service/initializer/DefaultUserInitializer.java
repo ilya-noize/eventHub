@@ -2,7 +2,6 @@ package com.event.hub.service.initializer;
 
 import com.event.hub.db.entity.UserRole;
 import com.event.hub.model.user.User;
-import com.event.hub.service.LocationService;
 import com.event.hub.service.UserService;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
@@ -20,8 +19,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class DefaultUserInitializer {
     private final UserService userService;
-
-    private final LocationService locationService;
 
     @PostConstruct
     public void init() {

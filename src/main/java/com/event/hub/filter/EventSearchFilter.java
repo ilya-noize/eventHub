@@ -31,7 +31,7 @@ public class EventSearchFilter extends PageableFilter {
         return equalIdSpec()
                 .and(equalOwnerSpec())
                 .and(equalStatusSpec())
-                .and(likeNameSpec())
+                .and(equalNameSpec())
                 .and(equalLocationSpec())
                 .and(greaterDateStartAfterSpec().and(lessDateStartBeforeSpec()))
                 .and(lessCostMaxSpec().and(greaterCostMinSpec()))
@@ -95,9 +95,9 @@ public class EventSearchFilter extends PageableFilter {
         );
     }
 
-    public Specification<EventEntity> likeNameSpec() {
+    public Specification<EventEntity> equalNameSpec() {
         return ((eventEntity, query, cb) -> name != null
-                ? cb.like(eventEntity.get("name"), name)
+                ? cb.equal(eventEntity.get("name"), name)
                 : null
         );
     }
