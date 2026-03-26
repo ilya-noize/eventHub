@@ -8,41 +8,70 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
+import java.util.Optional;
+
 public interface EventRepository extends
         JpaRepository<EventEntity, Long>,
         JpaSpecificationExecutor<EventEntity> {
 
+    @Query("""
+        SELECT e FROM EventEntity e
+            JOIN FETCH LocationEntity l ON e.location = l
+            JOIN FETCH UserEntity u ON e.owner.id = :id
+        """)
     Page<EventEntity> findByOwner_Id(Long id, Pageable pageable);
 
-    @Modifying
+    @Override
+    @Query("""
+        SELECT e FROM EventEntity e
+            JOIN FETCH LocationEntity l ON e.location = l
+            JOIN FETCH UserEntity u ON e.owner = u
+            WHERE e.status <> 'CANCELLED'
+        """)
+    Optional<EventEntity> findById(Long eventId);
+
     @Query("""
             UPDATE EventEntity e
             SET e.occupiedPlaces = e.occupiedPlaces - 1
-            WHERE e.id=:id
+            WHERE e.id = :id
+                 AND e.status = 'WAITING_START'
             """)
+    @Modifying
     void freeUpOccupiedSpace(Long id);
 
-    @Modifying
     @Query("""
             UPDATE EventEntity e
             SET e.occupiedPlaces = e.occupiedPlaces + 1
-            WHERE e.id=:id AND e.maxPlaces > e.occupiedPlaces
+            WHERE e.id = :id
+                 AND e.maxPlaces > e.occupiedPlaces
+                 AND e.status = 'WAITING_START'
             """)
+    @Modifying
     int occupyEmptyPlace(Long id);
 
-    @Modifying
-    @Query("""
-            UPDATE EventEntity e SET e.status='STARTED'
-            WHERE e.date BETWEEN NOW() AND NOW() + CAST(e.duration AS INTERVAL)
-                    AND e.status = 'WAITING_START'
-            """)
-    void updateAllEventsStatusToStarted();
+    @Query(value = """
+            UPDATE events
+            SET status = 'STARTED'
+            WHERE date BETWEEN NOW() AND NOW() + CAST(duration AS INTERVAL)
+                    AND status = 'WAITING_START';
+            """, nativeQuery = true)
+    @Modifying(flushAutomatically = true, clearAutomatically = true)
+    int updateAllEventsStatusToStarted();
 
-    @Modifying
+    @Query(value = """
+            UPDATE events
+            SET status = 'FINISHED'
+            WHERE date <= (NOW() - CAST(duration AS INTERVAL)) 
+                    AND status = 'STARTED';
+            """, nativeQuery = true)
+    @Modifying(flushAutomatically = true, clearAutomatically = true)
+    int updateAllEventsStatusToFinished();
+
     @Query("""
-            UPDATE EventEntity e SET e.status='FINISHED'
-            WHERE e.date <= NOW() - CAST(e.duration AS INTERVAL)
-                    AND e.status = 'STARTED'
+            UPDATE EventEntity e
+            SET e.status = 'CANCELED'
+            WHERE e.id = :id
             """)
-    void updateAllEventsStatusToFinished();
+    @Modifying(flushAutomatically = true, clearAutomatically = true)
+    void updateEventStatusToCanceled(Long eventId);
 }

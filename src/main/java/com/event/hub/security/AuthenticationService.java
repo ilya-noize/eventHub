@@ -1,11 +1,13 @@
 package com.event.hub.security;
 
+import com.event.hub.db.entity.UserRole;
 import com.event.hub.model.user.User;
 import com.event.hub.model.user.UserCredentials;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
@@ -40,10 +42,13 @@ public class AuthenticationService {
         return getCurrentAuthenticatedUser().getId();
     }
 
-    public void verifyAuthenticatedUserAsOwnerResource(Long ownerId) {
-        Long authUserId = getCurrentAuthenticatedUserId();
-        if (!ownerId.equals(authUserId)) {
-            throw new SecurityException("The owner of the resource is another user");
+    public void verifyAuthenticatedUserAsOwnerResourceOrAdmin(Long ownerId) {
+        User authUser = getCurrentAuthenticatedUser();
+        if (!ownerId.equals(authUser.getId())) {
+            var adminAuthority = new SimpleGrantedAuthority(UserRole.ADMIN.name());
+            if (!authUser.getAuthorities().contains(adminAuthority)) {
+                throw new SecurityException("The owner of the resource is another user");
+            }
         }
     }
 }

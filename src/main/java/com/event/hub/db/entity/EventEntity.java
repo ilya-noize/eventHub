@@ -31,7 +31,7 @@ public class EventEntity extends SuperEntity {
     @Column(name = "name", nullable = false)
     private String name;
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
+    @ManyToOne(fetch = FetchType.LAZY)
     private UserEntity owner;
 
     @Column(name = "max_places", nullable = false)

@@ -81,24 +81,6 @@ public class LocationService {
         );
     }
 
-    /**
-     * Verify that the number of available seats does not exceed those specified by a given
-     */
-    public Location getConfirmedLocationForEventCapacity(Long locationId, Integer eventMaxPlaces) {
-        Location location = getLocationById(locationId);
-        Integer locationCapacity = location.capacity();
-        if (locationCapacity < eventMaxPlaces) {
-            throw new IllegalArgumentException("%s places is more than %s capacity in %s place ID=%s"
-                    .formatted(
-                            eventMaxPlaces,
-                            locationCapacity,
-                            location.name(),
-                            location.id()
-                    ));
-        }
-        return location;
-    }
-
     private static void capacityNotLessThanBefore(Integer capacity, LocationEntity entity) {
         if (entity.getCapacity() > capacity) {
             throw new IllegalStateException("New Capacity can't less than old one");
