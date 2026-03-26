@@ -21,9 +21,10 @@ public class DefaultLocationInitializer {
 
     @PostConstruct
     public void init() {
+        String locationJson = "location.json";
         try {
             ObjectMapper mapper = new ObjectMapper();
-            ClassPathResource resource = new ClassPathResource("location.json");
+            ClassPathResource resource = new ClassPathResource(locationJson);
             try (InputStream inputStream = resource.getInputStream()) {
                 List<Location> locations = mapper.readValue(inputStream,
                         mapper.getTypeFactory().constructCollectionType(List.class, Location.class));
@@ -32,7 +33,7 @@ public class DefaultLocationInitializer {
                         .forEach(locationService::createLocation);
             }
         } catch (IOException e) {
-            throw new RuntimeException("File location.json not found:" + e.getMessage(), e);
+            throw new RuntimeException("File " + locationJson + " not found:" + e.getMessage(), e);
         }
     }
 }
