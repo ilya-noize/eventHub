@@ -23,6 +23,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/events")
 @RequiredArgsConstructor
@@ -30,6 +32,19 @@ import org.springframework.web.bind.annotation.RestController;
 public class EventController {
     private final EventService eventService;
     private final EventMapper eventMapper;
+
+    @PostMapping("/tour")
+    public List<EventResponse> createEvent(
+            @RequestBody @Valid List<EventPostRequest> request
+    ) {
+        log.info("Creating tour of {} events", request.size());
+        List<Event> events = request.stream()
+                .map(eventMapper::toDomain)
+                .toList();
+        return eventService.createEventTour(events).stream()
+                .map(eventMapper::toResponse)
+                .toList();
+    }
 
     @PostMapping
     public EventResponse createEvent(
