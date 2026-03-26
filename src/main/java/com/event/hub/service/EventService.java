@@ -12,6 +12,7 @@ import com.event.hub.security.AuthenticationService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -97,5 +98,17 @@ public class EventService {
                 filter.toPageable()
         );
         return findAll.map(eventMapper::toDomain);
+    }
+
+    @Transactional
+    @Scheduled(cron="*/5 * 12 ? * MON-FRI")
+    public void updateAllEventsStatusToStarted() {
+        eventRepository.updateAllEventsStatusToStarted();
+    }
+
+    @Transactional
+    @Scheduled(cron="*/5 * 12 ? * MON-FRI")
+    public void updateAllEventsStatusToFinished() {
+        eventRepository.updateAllEventsStatusToFinished();
     }
 }

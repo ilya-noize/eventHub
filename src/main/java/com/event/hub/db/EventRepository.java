@@ -16,17 +16,33 @@ public interface EventRepository extends
 
     @Modifying
     @Query("""
-        UPDATE EventEntity e
-        SET e.occupiedPlaces = e.occupiedPlaces - 1
-        WHERE e.id=:id
-        """)
+            UPDATE EventEntity e
+            SET e.occupiedPlaces = e.occupiedPlaces - 1
+            WHERE e.id=:id
+            """)
     void freeUpOccupiedSpace(Long id);
 
     @Modifying
     @Query("""
-        UPDATE EventEntity e
-        SET e.occupiedPlaces = e.occupiedPlaces + 1
-        WHERE e.id=:id AND e.maxPlaces > e.occupiedPlaces
-        """)
-    boolean occupyEmptyPlace(Long id);
+            UPDATE EventEntity e
+            SET e.occupiedPlaces = e.occupiedPlaces + 1
+            WHERE e.id=:id AND e.maxPlaces > e.occupiedPlaces
+            """)
+    int occupyEmptyPlace(Long id);
+
+    @Modifying
+    @Query("""
+            UPDATE EventEntity e SET e.status='STARTED'
+            WHERE e.date BETWEEN NOW() AND NOW() + CAST(e.duration AS INTERVAL)
+                    AND e.status = 'WAITING_START'
+            """)
+    void updateAllEventsStatusToStarted();
+
+    @Modifying
+    @Query("""
+            UPDATE EventEntity e SET e.status='FINISHED'
+            WHERE e.date <= NOW() - CAST(e.duration AS INTERVAL)
+                    AND e.status = 'STARTED'
+            """)
+    void updateAllEventsStatusToFinished();
 }
