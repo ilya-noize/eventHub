@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -17,7 +18,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/events/registration")
+@RequestMapping("/events/registrations")
 @RequiredArgsConstructor
 @Slf4j
 public class EventRegistrationController {
@@ -25,6 +26,7 @@ public class EventRegistrationController {
     private final EventMapper eventMapper;
 
     @GetMapping("/my")
+    @PreAuthorize("hasAuthority('USER')")
     public Page<EventResponse> getMyRegistrationsEvent(PageableFilter filter) {
         log.info("get my registered events");
         return eventRegistrationService.getMyRegistrationsEvent(filter)
@@ -32,6 +34,7 @@ public class EventRegistrationController {
     }
 
     @PostMapping("/{id}")
+    @PreAuthorize("hasAuthority('USER')")
     public void registrationEvent(@PathVariable Long id) {
         log.info("register to an event ID={}", id);
         eventRegistrationService.registrationEvent(id);
@@ -39,6 +42,7 @@ public class EventRegistrationController {
 
     @DeleteMapping("/cancel/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @PreAuthorize("hasAuthority('USER')")
     public void registrationCancelEvent(@PathVariable Long id) {
         log.info("delete a registered user from the list of participants in this meeting. Id = {}", id);
         eventRegistrationService.cancelRegisteredUserFromTheListParticipantsInThisEventById(id);

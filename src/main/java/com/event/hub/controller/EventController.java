@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -34,9 +35,8 @@ public class EventController {
     private final EventMapper eventMapper;
 
     @PostMapping("/tour")
-    public List<EventResponse> createEvent(
-            @RequestBody @Valid List<EventPostRequest> request
-    ) {
+    @PreAuthorize("hasAuthority('USER')")
+    public List<EventResponse> createTourEvents(@RequestBody @Valid List<EventPostRequest> request) {
         log.info("Creating tour of {} events", request.size());
         List<Event> events = request.stream()
                 .map(eventMapper::toDomain)
@@ -47,9 +47,8 @@ public class EventController {
     }
 
     @PostMapping
-    public EventResponse createEvent(
-            @RequestBody @Valid EventPostRequest request
-    ) {
+    @PreAuthorize("hasAuthority('USER')")
+    public EventResponse createEvent(@RequestBody @Valid EventPostRequest request) {
         log.info("Creating new event: {}", request.toString());
         Event event = eventMapper.toDomain(request);
         return eventMapper.toResponse(eventService.createEvent(event));
@@ -57,18 +56,21 @@ public class EventController {
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @PreAuthorize("@eventManager.isEventOwnerOrAdmin(#id)")
     public void deleteById(@PathVariable Long id) {
         log.info("Deleting event by ID={}", id);
         eventService.deleteById(id);
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasAuthority('USER')")
     public EventResponse getEventById(@PathVariable Long id) {
         log.info("Getting event with ID={}", id);
         return eventMapper.toResponse(eventService.getEventById(id));
     }
 
     @GetMapping("/my")
+    @PreAuthorize("hasAuthority('USER')")
     public Page<EventResponse> getMyEvents(PageableFilter filter) {
         log.info("Getting my events");
         return eventService.getMyEvents(filter)
@@ -76,6 +78,7 @@ public class EventController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("@eventValidator.isEventOwnerOrAdmin(#id)")
     public EventResponse updateEventById(
             @PathVariable Long id,
             @RequestBody @Valid EventPutRequest request
@@ -86,6 +89,7 @@ public class EventController {
     }
 
     @PostMapping("/search")
+    @PreAuthorize("hasAnyAuthority('USER', 'ADMIN')")
     public Page<EventResponse> searchEvents(EventSearchFilter filter) {
         log.info("Searching for all available Events");
         return eventService.search(filter)
