@@ -1,6 +1,6 @@
 package com.event.hub.model.location;
 
-public record Location(
+public record LocationDto(
         Long id,
         String name,
         String address,

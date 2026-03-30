@@ -17,22 +17,22 @@ public interface EventMapper {
     @Mapping(target = "ownerId", ignore = true)
     @Mapping(target = "occupiedPlaces", ignore = true)
     @Mapping(target = "id", ignore = true)
-    Event toDomain(EventPostRequest request);
+    EventDto toDomain(EventPostRequest request);
 
     @Mapping(target = "status", ignore = true)
     @Mapping(target = "ownerId", ignore = true)
     @Mapping(target = "occupiedPlaces", ignore = true)
     @Mapping(target = "id", ignore = true)
-    Event toDomain(EventPutRequest request);
+    EventDto toDomain(EventPutRequest request);
 
     @Mapping(target = "ownerId", source = "entity.owner.id")
     @Mapping(target = "locationId", source = "entity.location.id")
-    Event toDomain(EventEntity entity);
+    EventDto toDomain(EventEntity entity);
 
-    EventResponse toResponse(Event domain);
+    EventResponse toResponse(EventDto domain);
 
     @Mapping(target = "registrations", ignore = true)
-    @Mapping(target = "location.id", source = "event.locationId")
-    @Mapping(target = "owner.id", source = "event.ownerId")
-    EventEntity toEntity(Event event);
+    @Mapping(target = "location.id", source = "eventDto.locationId")
+    @Mapping(target = "owner.id", source = "eventDto.ownerId")
+    EventEntity toEntity(EventDto eventDto);
 }

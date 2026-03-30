@@ -1,7 +1,7 @@
 package com.event.hub.controller;
 
 import com.event.hub.filter.LocationSearchFilter;
-import com.event.hub.model.location.Location;
+import com.event.hub.model.location.LocationDto;
 import com.event.hub.model.location.LocationMapper;
 import com.event.hub.model.location.LocationPatchRequest;
 import com.event.hub.model.location.LocationPostRequest;
@@ -42,10 +42,9 @@ public class LocationController {
     @PreAuthorize("hasAuthority('ADMIN')")
     public LocationResponse createLocation(@RequestBody @Valid LocationPostRequest request) {
         log.info("Received a request to create a location {}", request.name());
-        Location createdLocation = locationService.createLocation(
-                locationMapper.toDomain(request)
-        );
-        return locationMapper.toResponse(createdLocation);
+        LocationDto domain = locationMapper.toDomain(request);
+
+        return locationMapper.toResponse(locationService.createLocation(domain));
     }
 
 
@@ -56,10 +55,9 @@ public class LocationController {
             @RequestBody @Valid LocationPutRequest request
     ) {
         log.info("Received a request to update a location by ID={}", id);
-        Location updatedLocation = locationService.updateLocation(
-                id, locationMapper.toDomain(request)
-        );
-        return locationMapper.toResponse(updatedLocation);
+        LocationDto domain = locationMapper.toDomain(request);
+
+        return locationMapper.toResponse(locationService.updateLocation(id, domain));
     }
 
     @PatchMapping("/{id}")
@@ -69,11 +67,9 @@ public class LocationController {
             @RequestBody @Valid LocationPatchRequest patchRequest
     ) {
         log.info("Received a request to patch a location by ID={}", id);
-        Location location = locationMapper.toDomain(patchRequest);
+        LocationDto domain = locationMapper.toDomain(patchRequest);
 
-        return locationMapper.toResponse(
-                locationService.patchLocation(id, location)
-        );
+        return locationMapper.toResponse(locationService.patchLocation(id, domain));
     }
 
     @DeleteMapping("/{id}")
@@ -88,9 +84,7 @@ public class LocationController {
     public LocationResponse getLocationById(@PathVariable Long id) {
         log.info("Received a request to get a location by ID={}", id);
 
-        return locationMapper.toResponse(
-                locationService.getLocationById(id)
-        );
+        return locationMapper.toResponse(locationService.getLocationById(id));
     }
 
     @GetMapping
@@ -98,7 +92,6 @@ public class LocationController {
     public Page<LocationResponse> getAllLocations(LocationSearchFilter filter) {
         log.info("Received a request to get a locations by filter={}", filter.toLogMessage());
 
-        return locationService.getAllLocation(filter)
-                .map(locationMapper::toResponse);
+        return locationService.getAllLocation(filter).map(locationMapper::toResponse);
     }
 }

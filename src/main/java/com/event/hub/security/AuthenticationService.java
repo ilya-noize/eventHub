@@ -1,8 +1,10 @@
 package com.event.hub.security;
 
+import com.event.hub.db.entity.UserEntity;
 import com.event.hub.db.entity.UserRole;
 import com.event.hub.model.user.User;
 import com.event.hub.model.user.UserCredentials;
+import com.event.hub.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -19,6 +21,7 @@ public class AuthenticationService {
 
     private final AuthenticationManager authenticationManager;
     private final JwtTokenManager jwtTokenManager;
+    private final UserService userService;
 
     public String authenticateUser(UserCredentials credentials) {
         var authentication = new UsernamePasswordAuthenticationToken(
@@ -33,7 +36,7 @@ public class AuthenticationService {
     public User getCurrentAuthenticatedUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         Optional.ofNullable(authentication).orElseThrow(
-                () -> new IllegalStateException("Auth not present")
+                () -> new IllegalStateException("Authentication not present")
         );
         return (User) authentication.getPrincipal();
     }
@@ -42,6 +45,11 @@ public class AuthenticationService {
         return getCurrentAuthenticatedUser().getId();
     }
 
+    public UserEntity getAuthenticatedUserEntity() {
+        return userService.findByUsername(getCurrentAuthenticatedUser().getLogin());
+    }
+
+    @Deprecated
     public void verifyAuthenticatedUserAsOwnerResourceOrAdmin(Long ownerId) {
         User authUser = getCurrentAuthenticatedUser();
         if (!ownerId.equals(authUser.getId())) {

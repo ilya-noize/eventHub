@@ -8,8 +8,6 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
-import java.util.Optional;
-
 public interface EventRepository extends
         JpaRepository<EventEntity, Long>,
         JpaSpecificationExecutor<EventEntity> {
@@ -21,20 +19,11 @@ public interface EventRepository extends
         """)
     Page<EventEntity> findByOwner_Id(Long id, Pageable pageable);
 
-    @Override
-    @Query("""
-        SELECT e FROM EventEntity e
-            JOIN FETCH LocationEntity l ON e.location = l
-            JOIN FETCH UserEntity u ON e.owner = u
-            WHERE e.status <> 'CANCELLED'
-        """)
-    Optional<EventEntity> findById(Long eventId);
-
     @Query("""
             UPDATE EventEntity e
             SET e.occupiedPlaces = e.occupiedPlaces - 1
             WHERE e.id = :id
-                 AND e.status = 'WAITING_START'
+                 AND e.status = 'WAIT_START'
             """)
     @Modifying
     void freeUpOccupiedSpace(Long id);
@@ -44,7 +33,7 @@ public interface EventRepository extends
             SET e.occupiedPlaces = e.occupiedPlaces + 1
             WHERE e.id = :id
                  AND e.maxPlaces > e.occupiedPlaces
-                 AND e.status = 'WAITING_START'
+                 AND e.status = 'WAIT_START'
             """)
     @Modifying
     int occupyEmptyPlace(Long id);
@@ -53,7 +42,7 @@ public interface EventRepository extends
             UPDATE events
             SET status = 'STARTED'
             WHERE date BETWEEN NOW() AND NOW() + CAST(duration AS INTERVAL)
-                    AND status = 'WAITING_START';
+                    AND status = 'WAIT_START';
             """, nativeQuery = true)
     @Modifying(flushAutomatically = true, clearAutomatically = true)
     int updateAllEventsStatusToStarted();

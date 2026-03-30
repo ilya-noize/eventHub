@@ -2,12 +2,12 @@ package com.event.hub.controller;
 
 import com.event.hub.filter.EventSearchFilter;
 import com.event.hub.filter.PageableFilter;
-import com.event.hub.model.event.Event;
+import com.event.hub.model.event.EventDto;
 import com.event.hub.model.event.EventMapper;
 import com.event.hub.model.event.EventPostRequest;
 import com.event.hub.model.event.EventPutRequest;
 import com.event.hub.model.event.EventResponse;
-import com.event.hub.service.EventService;
+import com.event.hub.service.EventManager;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -31,17 +31,17 @@ import java.util.List;
 @RequiredArgsConstructor
 @Slf4j
 public class EventController {
-    private final EventService eventService;
+    private final EventManager eventManager;
     private final EventMapper eventMapper;
 
     @PostMapping("/tour")
     @PreAuthorize("hasAuthority('USER')")
     public List<EventResponse> createTourEvents(@RequestBody @Valid List<EventPostRequest> request) {
         log.info("Creating tour of {} events", request.size());
-        List<Event> events = request.stream()
+        List<EventDto> events = request.stream()
                 .map(eventMapper::toDomain)
                 .toList();
-        return eventService.createEventTour(events).stream()
+        return eventManager.createTourEvents(events).stream()
                 .map(eventMapper::toResponse)
                 .toList();
     }
@@ -50,8 +50,9 @@ public class EventController {
     @PreAuthorize("hasAuthority('USER')")
     public EventResponse createEvent(@RequestBody @Valid EventPostRequest request) {
         log.info("Creating new event: {}", request.toString());
-        Event event = eventMapper.toDomain(request);
-        return eventMapper.toResponse(eventService.createEvent(event));
+        EventDto dto = eventManager.createEvent(eventMapper.toDomain(request));
+
+        return eventMapper.toResponse(dto);
     }
 
     @DeleteMapping("/{id}")
@@ -59,22 +60,24 @@ public class EventController {
     @PreAuthorize("@eventManager.isEventOwnerOrAdmin(#id)")
     public void deleteById(@PathVariable Long id) {
         log.info("Deleting event by ID={}", id);
-        eventService.deleteById(id);
+        eventManager.deleteById(id);
     }
 
     @GetMapping("/{id}")
     @PreAuthorize("hasAuthority('USER')")
     public EventResponse getEventById(@PathVariable Long id) {
         log.info("Getting event with ID={}", id);
-        return eventMapper.toResponse(eventService.getEventById(id));
+        EventDto dto = eventManager.getEventById(id);
+
+        return eventMapper.toResponse(dto);
     }
 
     @GetMapping("/my")
     @PreAuthorize("hasAuthority('USER')")
     public Page<EventResponse> getMyEvents(PageableFilter filter) {
         log.info("Getting my events");
-        return eventService.getMyEvents(filter)
-                .map(eventMapper::toResponse);
+
+        return eventManager.getMyEvents(filter).map(eventMapper::toResponse);
     }
 
     @PutMapping("/{id}")
@@ -84,15 +87,16 @@ public class EventController {
             @RequestBody @Valid EventPutRequest request
     ) {
         log.info("Updating an existing event, ID={}", id);
-        Event domain = eventMapper.toDomain(request);
-        return eventMapper.toResponse(eventService.updateEventById(id, domain));
+        EventDto dto = eventManager.updateEventById(id, eventMapper.toDomain(request));
+
+        return eventMapper.toResponse(dto);
     }
 
     @PostMapping("/search")
     @PreAuthorize("hasAnyAuthority('USER', 'ADMIN')")
     public Page<EventResponse> searchEvents(EventSearchFilter filter) {
         log.info("Searching for all available Events");
-        return eventService.search(filter)
-                .map(eventMapper::toResponse);
+
+        return eventManager.search(filter).map(eventMapper::toResponse);
     }
 }

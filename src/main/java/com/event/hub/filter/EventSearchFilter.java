@@ -1,6 +1,7 @@
 package com.event.hub.filter;
 
 import com.event.hub.db.entity.EventEntity;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
@@ -13,13 +14,15 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class EventSearchFilter extends PageableFilter {
-    private String durationMax;
-    private String durationMin;
+    private Integer durationMax;
+    private Integer durationMin;
     private Integer placesMax;
     private Integer placesMin;
     private BigDecimal costMax;
     private BigDecimal costMin;
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX")
     private LocalDateTime dateStartBefore;
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX")
     private LocalDateTime dateStartAfter;
     private String name;
     private Long locationId;

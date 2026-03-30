@@ -9,4 +9,6 @@ public interface LocationRepository extends
         JpaSpecificationExecutor<LocationEntity> {
 
     boolean existsByNameOrAddress(String name, String address);
+
+    boolean existsByIdAndCapacityLessThan(Long id, Integer requestedPlace);
 }

@@ -2,10 +2,14 @@ package com.event.hub.filter;
 
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 import org.springframework.data.domain.Pageable;
 
 import java.util.Optional;
 
+@NoArgsConstructor
+@AllArgsConstructor
 public class PageableFilter {
     public static final int PAGE_SIZE_MINIMAL = 3;
 
