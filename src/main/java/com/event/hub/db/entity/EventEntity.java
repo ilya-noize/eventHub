@@ -50,7 +50,7 @@ public class EventEntity extends SuperEntity {
     private BigDecimal cost;
 
     @Column(name = "duration", nullable = false)
-    private String duration;
+    private Integer duration;
 
     @ManyToOne(fetch = FetchType.LAZY, cascade = {CascadeType.MERGE, CascadeType.PERSIST})
     @JoinColumn(name="location_id")

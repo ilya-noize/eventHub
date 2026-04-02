@@ -12,11 +12,7 @@ public interface EventRepository extends
         JpaRepository<EventEntity, Long>,
         JpaSpecificationExecutor<EventEntity> {
 
-    @Query("""
-        SELECT e FROM EventEntity e
-            JOIN FETCH LocationEntity l ON e.location = l
-            JOIN FETCH UserEntity u ON e.owner.id = :id
-        """)
+    @Query("SELECT e FROM EventEntity e WHERE e.owner.id = :id")
     Page<EventEntity> findByOwner_Id(Long id, Pageable pageable);
 
     @Query("""
@@ -50,7 +46,7 @@ public interface EventRepository extends
     @Query(value = """
             UPDATE events
             SET status = 'FINISHED'
-            WHERE date <= (NOW() - CAST(duration AS INTERVAL)) 
+            WHERE date <= (NOW() - CAST(duration AS INTERVAL))
                     AND status = 'STARTED';
             """, nativeQuery = true)
     @Modifying(flushAutomatically = true, clearAutomatically = true)

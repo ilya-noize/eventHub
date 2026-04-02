@@ -18,6 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -31,6 +32,7 @@ public class EventManager {
 
     private final LocationService locationService;
 
+    @Transactional
     public EventDto createEvent(EventDto eventDto) {
         UserEntity owner = authenticationService.getAuthenticatedUserEntity();
         locationService.validateLocationFromRequestedPlaces(eventDto.getLocationId(), eventDto.getMaxPlaces());
@@ -39,6 +41,7 @@ public class EventManager {
         return eventMapper.toDomain(eventService.save(eventEntity));
     }
 
+    @Transactional
     public List<EventDto> createTourEvents(List<EventDto> eventDtos) {
         UserEntity owner = authenticationService.getAuthenticatedUserEntity();
         List<EventEntity> events = eventDtos.stream()
@@ -54,6 +57,7 @@ public class EventManager {
         eventService.updateEventStatusToCanceled(id);
     }
 
+    @Transactional
     public EventDto updateEventById(Long id, EventDto eventDto) {
         EventEntity existsEvent = eventService.findById(id);
         EventEntity entityToSave = eventMapper.toEntity(eventDto);
@@ -79,7 +83,7 @@ public class EventManager {
     }
 
     /**
-     * @PreAuthorize is called from {@link EventController}
+     * PreAuthorize is called from {@link EventController}
      * @see EventController#deleteById(Long)
      * @see EventController#updateEventById(Long, EventPutRequest)
      */

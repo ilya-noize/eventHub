@@ -81,7 +81,7 @@ public class EventController {
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("@eventValidator.isEventOwnerOrAdmin(#id)")
+    @PreAuthorize("@eventManager.isEventOwnerOrAdmin(#id)")
     public EventResponse updateEventById(
             @PathVariable Long id,
             @RequestBody @Valid EventPutRequest request

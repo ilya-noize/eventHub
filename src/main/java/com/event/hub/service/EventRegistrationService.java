@@ -34,7 +34,7 @@ public class EventRegistrationService {
     }
 
     private static void checkingEvent(EventEntity event, UserEntity user) {
-        if (!event.getOwner().getId().equals(user.getId())) {
+        if (event.getOwner().getId().equals(user.getId())) {
             throw new IllegalArgumentException("Owner can't register to his own events");
         }
         isNotWaitStartStatusEvent(event, "You cannot register for an event with the status");

@@ -7,7 +7,6 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import lombok.Builder;
-import org.springframework.security.access.prepost.PreAuthorize;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -31,7 +30,6 @@ public record EventPutRequest(
         Integer duration,
 
         @NotNull @Positive
-        @PreAuthorize("@locationService.existsLocationById(#locationId)")
         Long locationId
 ) {
 }

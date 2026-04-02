@@ -58,14 +58,14 @@ public class EventSearchFilter extends PageableFilter {
 
     public Specification<EventEntity> lessPlacesMaxSpec() {
         return ((eventEntity, query, cb) -> placesMax != null
-                ? cb.lessThanOrEqualTo(eventEntity.get("places"), placesMax)
+                ? cb.lessThanOrEqualTo(eventEntity.get("maxPlaces"), placesMax)
                 : null
         );
     }
 
     public Specification<EventEntity> greaterPlacesMinSpec() {
         return ((eventEntity, query, cb) -> placesMin != null
-                ? cb.greaterThanOrEqualTo(eventEntity.get("places"), placesMin)
+                ? cb.greaterThanOrEqualTo(eventEntity.get("maxPlaces"), placesMin)
                 : null
         );
     }

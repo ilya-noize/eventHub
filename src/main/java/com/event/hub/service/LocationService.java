@@ -57,7 +57,7 @@ public class LocationService {
 
     @Transactional
     public void delete(Long id) {
-        if (existsLocationById(id)) {
+        if (existsLocationById(id) && !existsUnfinishedEventsInLocationById(id)) {
             locationRepository.deleteById(id);
         }
     }
@@ -98,6 +98,13 @@ public class LocationService {
             throw new EntityNotFoundException("No such Location by ID:" + id);
         }
         return true;
+    }
+
+    public boolean existsUnfinishedEventsInLocationById(Long id) {
+        if (locationRepository.existsUnfinishedEventsInLocationById(id)) {
+            throw new IllegalStateException("There are unfinished events in the location by ID:" + id);
+        }
+        return false;
     }
 
     public LocationEntity findLocationById(Long id) {
