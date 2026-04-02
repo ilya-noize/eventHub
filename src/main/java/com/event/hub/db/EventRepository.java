@@ -37,7 +37,7 @@ public interface EventRepository extends
     @Query(value = """
             UPDATE events
             SET status = 'STARTED'
-            WHERE date BETWEEN NOW() AND NOW() + CAST(duration AS INTERVAL)
+            WHERE date BETWEEN NOW() AND NOW() + (duration * INTERVAL '1 minute')
                     AND status = 'WAIT_START';
             """, nativeQuery = true)
     @Modifying(flushAutomatically = true, clearAutomatically = true)
@@ -46,7 +46,7 @@ public interface EventRepository extends
     @Query(value = """
             UPDATE events
             SET status = 'FINISHED'
-            WHERE date <= (NOW() - CAST(duration AS INTERVAL))
+            WHERE date <= (NOW() - (duration * INTERVAL '1 minute'))
                     AND status = 'STARTED';
             """, nativeQuery = true)
     @Modifying(flushAutomatically = true, clearAutomatically = true)

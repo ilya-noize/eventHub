@@ -7,6 +7,7 @@ import com.event.hub.model.location.LocationDto;
 import com.event.hub.model.location.LocationMapper;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,6 +16,7 @@ import java.util.Optional;
 
 @Service("locationService")
 @RequiredArgsConstructor
+@Slf4j
 public class LocationService {
     private final LocationMapper locationMapper;
     private final LocationRepository locationRepository;
@@ -52,6 +54,7 @@ public class LocationService {
 
     @Transactional
     public LocationDto saveAndMappedToDomain(LocationEntity entity) {
+        log.debug("Save Location to DB: {}", entity.getName());
         return locationMapper.toDomain(locationRepository.save(entity));
     }
 

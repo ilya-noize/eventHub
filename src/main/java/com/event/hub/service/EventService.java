@@ -76,6 +76,6 @@ public class EventService {
         if (updated != 0) {
             log.info("{} Events status changed to {}", updated, status);
         }
-        log.debug("'updateAllEventsStatusTo{}' query returned no results", status);
+        log.info("'updateAllEventsStatusTo{}' query returned no results", status);
     }
 }
