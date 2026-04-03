@@ -8,6 +8,8 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
+import java.time.LocalDateTime;
+
 public interface EventRepository extends
         JpaRepository<EventEntity, Long>,
         JpaSpecificationExecutor<EventEntity> {
@@ -59,4 +61,17 @@ public interface EventRepository extends
             """)
     @Modifying(flushAutomatically = true, clearAutomatically = true)
     void updateEventStatusToCanceled(Long eventId);
+
+    @Query(value = """
+            SELECT COUNT(*) > 0
+            FROM events
+            WHERE location_id = :locationId
+              AND date + duration * INTERVAL '1 minute' > :dateStart
+              AND date < :dateEnd
+            """, nativeQuery = true)
+    boolean isTimeConflictBeforeReservation(
+            long locationId,
+            LocalDateTime dateStart,
+            LocalDateTime dateEnd
+    );
 }

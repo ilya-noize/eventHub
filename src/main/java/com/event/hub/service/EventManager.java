@@ -36,6 +36,7 @@ public class EventManager {
     public EventDto createEvent(EventDto eventDto) {
         UserEntity owner = authenticationService.getAuthenticatedUserEntity();
         locationService.validateLocationFromRequestedPlaces(eventDto.getLocationId(), eventDto.getMaxPlaces());
+        eventService.checkIfDateIsFree(eventDto);
         EventEntity eventEntity = enrichedEventToSave(eventMapper.toEntity(eventDto), owner);
 
         return eventMapper.toDomain(eventService.save(eventEntity));
@@ -46,6 +47,7 @@ public class EventManager {
         UserEntity owner = authenticationService.getAuthenticatedUserEntity();
         List<EventEntity> events = eventDtos.stream()
                 .filter(e -> locationService.validateLocationFromRequestedPlaces(e.getLocationId(), e.getMaxPlaces()))
+                .filter(eventService::checkIfDateIsFree)
                 .map(eventMapper::toEntity)
                 .map(event -> enrichedEventToSave(event, owner))
                 .toList();

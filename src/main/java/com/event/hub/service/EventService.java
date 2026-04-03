@@ -3,6 +3,7 @@ package com.event.hub.service;
 import com.event.hub.db.EventRepository;
 import com.event.hub.db.entity.EventEntity;
 import com.event.hub.db.entity.EventStatus;
+import com.event.hub.model.event.EventDto;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -13,6 +14,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Slf4j
@@ -20,6 +22,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class EventService {
     private final EventRepository eventRepository;
+
 
     @Transactional
     public EventEntity save(EventEntity entity) {
@@ -77,5 +80,19 @@ public class EventService {
             log.info("{} Events status changed to {}", updated, status);
         }
         log.info("'updateAllEventsStatusTo{}' query returned no results", status);
+    }
+
+    public boolean checkIfDateIsFree(EventDto eventDto) {
+        LocalDateTime dateStart = eventDto.getDate();
+        LocalDateTime dateEnd = dateStart.plusMinutes(eventDto.getDuration());
+        boolean isConflict = eventRepository.isTimeConflictBeforeReservation(
+                eventDto.getLocationId(),
+                dateStart,
+                dateEnd
+        );
+        if (isConflict) {
+            throw new IllegalArgumentException("There are other events taking place at the same time and in the same place");
+        }
+        return true;
     }
 }
