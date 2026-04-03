@@ -12,6 +12,7 @@ import org.mapstruct.MappingConstants;
 )
 public interface LocationMapper {
 
+    @Mapping(target = "events", ignore = true)
     LocationEntity toEntity(LocationDto locationDto);
 
     @Mapping(target = "id", ignore = true)

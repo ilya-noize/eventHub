@@ -61,6 +61,7 @@ public class EventManager {
 
     @Transactional
     public EventDto updateEventById(Long id, EventDto eventDto) {
+        eventService.checkIfDateIsFree(eventDto);
         EventEntity existsEvent = eventService.findById(id);
         EventEntity entityToSave = eventMapper.toEntity(eventDto);
         validateMaxAndOccupiedPlaces(entityToSave.getMaxPlaces(), existsEvent.getOccupiedPlaces());

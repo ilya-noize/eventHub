@@ -1,7 +1,9 @@
 package com.event.hub.model.event;
 
 
+import com.event.hub.config.CustomLocalDateTimeDeserializer;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -22,7 +24,8 @@ public record EventPostRequest(
         Integer maxPlaces,
 
         @NotNull @Future
-        @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX")
+        @JsonDeserialize(using = CustomLocalDateTimeDeserializer.class)
+        @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS")
         LocalDateTime date,
 
         @NotNull @PositiveOrZero
