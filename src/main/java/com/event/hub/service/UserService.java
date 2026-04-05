@@ -19,6 +19,7 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final UserMapper userMapper;
 
+    @Transactional
     public User registrationUser(User domain) {
         if (isUserExistsByLogin(domain.getUsername())) {
             throw new ValidationException("Login already taken");
@@ -30,7 +31,6 @@ public class UserService {
         return saveAndMappedToDomain(entity);
     }
 
-    @Transactional
     public User saveAndMappedToDomain(UserEntity entity) {
         return userMapper.toDomain(userRepository.save(entity));
     }
