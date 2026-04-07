@@ -12,17 +12,18 @@ import org.mapstruct.MappingConstants;
 )
 public interface LocationMapper {
 
-    LocationEntity toEntity(Location location);
+    @Mapping(target = "events", ignore = true)
+    LocationEntity toEntity(LocationDto locationDto);
 
     @Mapping(target = "id", ignore = true)
-    Location toDomain(LocationPostRequest request);
+    LocationDto toDomain(LocationPostRequest request);
 
     @Mapping(target = "id", ignore = true)
-    Location toDomain(LocationPutRequest request);
+    LocationDto toDomain(LocationPutRequest request);
 
-    Location toDomain(LocationPatchRequest request);
+    LocationDto toDomain(LocationPatchRequest request);
 
-    Location toDomain(LocationEntity request);
+    LocationDto toDomain(LocationEntity request);
 
-    LocationResponse toResponse(Location location);
+    LocationResponse toResponse(LocationDto locationDto);
 }

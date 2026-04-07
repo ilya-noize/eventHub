@@ -21,15 +21,18 @@ public class UserService {
 
     @Transactional
     public User registrationUser(User domain) {
-        if (isUserExistsByLogin(domain.login())) {
+        if (isUserExistsByLogin(domain.getUsername())) {
             throw new ValidationException("Login already taken");
         }
         UserEntity entity = userMapper.toEntity(domain);
         if (entity.getRole() == null) entity.setRole(UserRole.USER.name());
-        entity.setPassword(passwordEncoder.encode(domain.password()));
-        userRepository.save(entity);
+        entity.setPassword(passwordEncoder.encode(domain.getPassword()));
 
-        return userMapper.toDomain(entity);
+        return saveAndMappedToDomain(entity);
+    }
+
+    public User saveAndMappedToDomain(UserEntity entity) {
+        return userMapper.toDomain(userRepository.save(entity));
     }
 
     public boolean isUserExistsByLogin(String login) {
@@ -37,9 +40,18 @@ public class UserService {
     }
 
     public User getUserById(Long id) {
-        UserEntity user = userRepository.findById(id).orElseThrow(
+        return userMapper.toDomain(findById(id));
+    }
+
+    public UserEntity findById(Long id) {
+        return userRepository.findById(id).orElseThrow(
                 () -> new EntityNotFoundException("No such User ID=%s".formatted(id))
         );
-        return userMapper.toDomain(user);
+    }
+
+    public UserEntity findByUsername(String username) {
+        return userRepository.findByLogin(username).orElseThrow(
+                () -> new EntityNotFoundException("Username not found: %s".formatted(username))
+        );
     }
 }
