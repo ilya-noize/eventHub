@@ -6,7 +6,7 @@ import jakarta.validation.constraints.Size;
 
 public record LocationPostRequest(
         @NotBlank
-        @Size(max = 64)
+        @Size(max = 127)
         String name,
 
         @NotBlank

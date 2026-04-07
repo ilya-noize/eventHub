@@ -1,6 +1,9 @@
 package com.event.hub.model.location;
 
-public record Location(
+import lombok.Builder;
+
+@Builder
+public record LocationDto(
         Long id,
         String name,
         String address,

@@ -49,6 +49,12 @@ public class ExceptionController {
         return getErrorResponseAndLogging(UNAUTHORIZED, "Authentication failed", e);
     }
 
+    @ExceptionHandler({IllegalStateException.class})
+    @ResponseStatus(FORBIDDEN)
+    public ErrorResponse handleIllegalStateException(IllegalStateException e) {
+        return getErrorResponseAndLogging(FORBIDDEN, "Incorrect condition", e);
+    }
+
     @ExceptionHandler({AccessDeniedException.class})
     @ResponseStatus(FORBIDDEN)
     public ErrorResponse handleAccessDeniedException(AccessDeniedException e) {
