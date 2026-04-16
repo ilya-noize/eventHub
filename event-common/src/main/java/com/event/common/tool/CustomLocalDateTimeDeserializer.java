@@ -1,4 +1,4 @@
-package com.event.hub.config;
+package com.event.common.tool;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;

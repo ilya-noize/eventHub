@@ -1,4 +1,4 @@
-package com.event.hub.db.entity;
+package com.event.common;
 
 public enum UserRole {
     ADMIN,

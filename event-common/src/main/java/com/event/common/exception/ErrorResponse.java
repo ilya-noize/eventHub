@@ -1,9 +1,9 @@
-package com.event.hub.exception;
+package com.event.common.exception;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Builder;
 
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 
 @Builder
 public record ErrorResponse(
@@ -13,6 +13,6 @@ public record ErrorResponse(
                 shape = JsonFormat.Shape.STRING,
                 pattern = "yyyy-MM-dd HH:mm:ss.SSS'Z'"
         )
-        LocalDateTime dateTime
+        OffsetDateTime dateTime
 ) {
 }
