@@ -1,0 +1,100 @@
+#version: '3.9'
+
+services:
+  auth-postgres:
+    image: postgres:15-alpine
+    container_name: auth-db
+    environment:
+      POSTGRES_DB: authDB
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: root
+    ports:
+      - "5434:5432"
+    volumes:
+      - auth_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U root -d authDB"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  event-postgres:
+    image: postgres:15-alpine
+    container_name: event-db
+    environment:
+      POSTGRES_DB: eventHubDB
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: root
+    ports:
+      - "5432:5432"
+    volumes:
+      - event_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U root -d eventHubDB"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  notifier-postgres:
+    image: postgres:15-alpine
+    container_name: notifier-db
+    environment:
+      POSTGRES_DB: eventNotifyDB
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: root
+    ports:
+      - "5433:5432"
+    volumes:
+      - notify_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U root -d eventNotifyDB"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.5.0
+    container_name: zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - "2181:2181"
+
+  kafka:
+    image: confluentinc/cp-kafka:7.5.0
+    container_name: kafka
+    depends_on:
+      - zookeeper
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      # Определяем протоколы для каждого слушателя
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,DOCKER_NET:PLAINTEXT
+      # Внешний интерфейс (для хоста) и внутренний (для Docker)
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,DOCKER_NET://0.0.0.0:9093
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092,DOCKER_NET://kafka:9093
+      # Указываем, какой слушатель использовать между брокерами (внутри сети)
+      KAFKA_INTER_BROKER_LISTENER_NAME: DOCKER_NET
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+    ports:
+      - "9092:9092"
+  redis:
+    image: redis:7-alpine
+    container_name: redis
+    ports:
+      - "6379:6379"
+#    command: redis-server --requirepass ${REDIS_PASSWORD:-changeit}
+#    environment:
+#      REDIS_PASSWORD: root  # Optional: set password if needed
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 3
+
+volumes:
+  auth_data:
+  event_data:
+  notify_data:
