@@ -1,0 +1,45 @@
+spring:
+  config:
+    import:
+      - optional:file:.env
+      - optional:classpath:.env
+      - optional:file:${user.dir}/.env
+  application:
+    name: ${HUB_NAME}
+  datasource:
+    url: ${HUB_DATASOURCE_URL}
+    username: ${HUB_POSTGRES_USER}
+    password: ${HUB_POSTGRES_USER}
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: create-drop
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP}
+    producer:
+      key-serializer: org.apache.kafka.common.serializer.UUIDSerializer
+      value-serializer: org.apache.kafka.common.serializer.JacksonJsonSerializer
+
+server:
+  port: ${HUB_PORT}
+
+#management:
+#  endpoints:
+#    web:
+#      exposure:
+#        include: health,info,prometheus
+#  metrics:
+#    export:
+#      prometheus:
+#        enabled: true
+#
+#opentracing:
+#  jaeger:
+#    http-sender:
+#      url: ${JAEGER_ENDPOINT:http://localhost:14268/api/traces}
+#    service-name: event-manager
+#    enable-b3-propagation: true
+
+jwt:
+  secret-key: ${JWT_SECRET_KEY}
+  lifetime: ${JWT_LIFETIME}

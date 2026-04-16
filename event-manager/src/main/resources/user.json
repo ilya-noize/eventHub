@@ -1,0 +1,247 @@
+[
+  {
+    "login": "alex_traveler",
+    "password": "TrvL9kLm2x",
+    "age": 28
+  },
+  {
+    "login": "maria_cook",
+    "password": "Cok7nMn3y",
+    "age": 32
+  },
+  {
+    "login": "ivan_photographer",
+    "password": "Pho8pNq4z",
+    "age": 25
+  },
+  {
+    "login": "olga_yoga",
+    "password": "Yog9qOr5a",
+    "age": 30
+  },
+  {
+    "login": "dmitry_gamer",
+    "password": "Gam1rPs6b",
+    "age": 19
+  },
+  {
+    "login": "svetlana_artist",
+    "password": "Art2sQt7c",
+    "age": 27
+  },
+  {
+    "login": "andrey_runner",
+    "password": "Run3tRv8d",
+    "age": 35
+  },
+  {
+    "login": "ekaterina_bookworm",
+    "password": "Boo4uSw9e",
+    "age": 24
+  },
+  {
+    "login": "maxim_music",
+    "password": "Mus5vTx1f",
+    "age": 29
+  },
+  {
+    "login": "natalia_hiker",
+    "password": "Hik6wUy2g",
+    "age": 33
+  },
+  {
+    "login": "sergey_coder",
+    "password": "Cod7xVz3h",
+    "age": 26
+  },
+  {
+    "login": "alina_dancer",
+    "password": "Dan8yWa4i",
+    "age": 21
+  },
+  {
+    "login": "vlad_skier",
+    "password": "Ski9zXb5j",
+    "age": 31
+  },
+  {
+    "login": "tatyana_writer",
+    "password": "Wri1aYc6k",
+    "age": 40
+  },
+  {
+    "login": "denis_cyclist",
+    "password": "Cycl2bZd7l",
+    "age": 34
+  },
+  {
+    "login": "katerina_gardener",
+    "password": "Gar3cAe8m",
+    "age": 45
+  },
+  {
+    "login": "artem_surfer",
+    "password": "Sur4dBf9n",
+    "age": 22
+  },
+  {
+    "login": "sofia_designer",
+    "password": "Des5eCg1o",
+    "age": 28
+  },
+  {
+    "login": "ilya_fisherman",
+    "password": "Fish6fDh2p",
+    "age": 50
+  },
+  {
+    "login": "veronika_singer",
+    "password": "Sin7gEi3q",
+    "age": 23
+  },
+  {
+    "login": "nikita_chess",
+    "password": "Che8hFj4r",
+    "age": 17
+  },
+  {
+    "login": "arina_swimmer",
+    "password": "Swi9iGk5s",
+    "age": 16
+  },
+  {
+    "login": "timur_climber",
+    "password": "Cli1jHl6t",
+    "age": 38
+  },
+  {
+    "login": "polina_reader",
+    "password": "Rea2kIm7u",
+    "age": 20
+  },
+  {
+    "login": "kirill_dj",
+    "password": "Dj3lJn8v",
+    "age": 29
+  },
+  {
+    "login": "margarita_baker",
+    "password": "Bak4mKo9w",
+    "age": 36
+  },
+  {
+    "login": "fedor_hobbyist",
+    "password": "Hob5nLp1x",
+    "age": 42
+  },
+  {
+    "login": "liza_blogger",
+    "password": "Blo6oMq2y",
+    "age": 25
+  },
+  {
+    "login": "roman_explorer",
+    "password": "Exp7pNr3z",
+    "age": 39
+  },
+  {
+    "login": "yulia_fitness",
+    "password": "Fit8qOs4a",
+    "age": 27
+  },
+  {
+    "login": "anton_techie",
+    "password": "Tec9rPt5b",
+    "age": 31
+  },
+  {
+    "login": "masha_knitter",
+    "password": "Kni1sQu6c",
+    "age": 44
+  },
+  {
+    "login": "pavel_mechanic",
+    "password": "Mec2tRv7d",
+    "age": 37
+  },
+  {
+    "login": "ira_florist",
+    "password": "Flo3uSw8e",
+    "age": 26
+  },
+  {
+    "login": "grisha_gamer",
+    "password": "Gam4vTx9f",
+    "age": 18
+  },
+  {
+    "login": "lena_stylist",
+    "password": "Sty5wUy1g",
+    "age": 33
+  },
+  {
+    "login": "vova_adventurer",
+    "password": "Adv6xVz2h",
+    "age": 41
+  },
+  {
+    "login": "nastya_volunteer",
+    "password": "Vol7yWa3i",
+    "age": 22
+  },
+  {
+    "login": "egor_tech",
+    "password": "Tec8zXb4j",
+    "age": 30
+  },
+  {
+    "login": "zoya_painter",
+    "password": "Pai9aYc5k",
+    "age": 55
+  },
+  {
+    "login": "danil_skater",
+    "password": "Ska1bZd6l",
+    "age": 15
+  },
+  {
+    "login": "uliana_poet",
+    "password": "Poe2cAe7m",
+    "age": 24
+  },
+  {
+    "login": "maksim_fisher",
+    "password": "Fis3dBf8n",
+    "age": 48
+  },
+  {
+    "login": "vera_yogini",
+    "password": "Yog4eCg9o",
+    "age": 35
+  },
+  {
+    "login": "ilya_runner",
+    "password": "Run5fDh1p",
+    "age": 29
+  },
+  {
+    "login": "karina_dancer",
+    "password": "Dan6gEi2q",
+    "age": 20
+  },
+  {
+    "login": "oleg_hiker",
+    "password": "Hik7hFj3r",
+    "age": 43
+  },
+  {
+    "login": "anastasia_writer",
+    "password": "Wri8iGk4s",
+    "age": 32
+  },
+  {
+    "login": "vadim_cyclist",
+    "password": "Cyc9jHl5t",
+    "age": 38
+  }
+]
