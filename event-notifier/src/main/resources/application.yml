@@ -1,0 +1,45 @@
+spring:
+  config:
+    import:
+      - optional:file:.env
+      - optional:classpath:.env
+      - optional:file:${user.dir}/.env
+  application:
+    name: ${NOTIFY_NAME}
+  datasource:
+    url: ${NOTIFY_DATASOURCE_URL}
+    username: ${NOTIFY_POSTGRES_USER}
+    password: ${NOTIFY_POSTGRES_PASSWORD}
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: create-drop
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP}
+    consumer:
+      group-id: ${KAFKA_CONSUMER_GROUP_ID}
+      key-deserializer: org.apache.kafka.common.serializer.UuidDeserializer
+      value-deserializer: org.apache.kafka.common.serializer.JacksonJsonDeserializer
+      properties:
+        spring.json.trusted.packages: "*"
+
+server:
+  port: ${NOTIFY_PORT}
+
+#management:
+#  endpoints:
+#    web:
+#      exposure:
+#        include: health,info,prometheus
+#  metrics:
+#    export:
+#      prometheus:
+#        enabled: true
+#
+# Jaeger (закомментировано)
+# opentracing:
+#   jaeger:
+#     http-sender:
+#       url: ${JAEGER_ENDPOINT:http://localhost:14268/api/traces}
+#     service-name: event-manager
+#     enable-b3-propagation: true
