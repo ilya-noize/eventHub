@@ -1,4 +1,4 @@
-package com.event.hub.model;
+package com.event.common.tool;
 
 import lombok.experimental.UtilityClass;
 
