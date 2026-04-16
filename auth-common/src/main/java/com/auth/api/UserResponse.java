@@ -1,5 +1,8 @@
-package com.event.hub.model.user;
+package com.auth.api;
 
+import lombok.Builder;
+
+@Builder
 public record UserResponse(
         Long id,
         String login,
