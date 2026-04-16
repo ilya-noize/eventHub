@@ -1,4 +1,4 @@
-package com.event.hub.model.user;
+package com.auth.api;
 
 import jakarta.validation.constraints.NotBlank;
 

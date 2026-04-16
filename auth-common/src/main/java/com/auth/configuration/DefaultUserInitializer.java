@@ -1,12 +1,13 @@
-package com.event.hub.service.initializer;
+package com.auth.configuration;
 
-import com.event.hub.db.entity.UserRole;
-import com.event.hub.model.user.User;
-import com.event.hub.service.UserService;
+import com.auth.domain.UserDto;
+import com.auth.domain.UserService;
+import com.event.common.UserRole;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Component;
 import tools.jackson.databind.ObjectMapper;
 
@@ -23,19 +24,19 @@ public class DefaultUserInitializer {
     @PostConstruct
     public void init() {
         createUserIfNotExists(
-                User.builder()
+                UserDto.builder()
                         .login("admin")
                         .password("admin")
                         .age(99)
-                        .role(UserRole.ADMIN.name())
+                        .roles(List.of(new SimpleGrantedAuthority(UserRole.ADMIN.name())))
                         .build()
         );
         createUserIfNotExists(
-                User.builder()
+                UserDto.builder()
                         .login("user")
                         .password("user")
                         .age(18)
-                        .role(UserRole.USER.name())
+                        .roles(List.of(new SimpleGrantedAuthority(UserRole.USER.name())))
                         .build()
         );
         createFiftyUserFromJson();
@@ -47,19 +48,19 @@ public class DefaultUserInitializer {
             ObjectMapper mapper = new ObjectMapper();
             ClassPathResource resource = new ClassPathResource(userJson);
             try (InputStream inputStream = resource.getInputStream()) {
-                List<User> users = mapper.readValue(inputStream,
-                        mapper.getTypeFactory().constructCollectionType(List.class, User.class));
-                users.forEach(this::createUserIfNotExists);
+                List<UserDto> userDtos = mapper.readValue(inputStream,
+                        mapper.getTypeFactory().constructCollectionType(List.class, UserDto.class));
+                userDtos.forEach(this::createUserIfNotExists);
             }
         } catch (IOException e) {
             throw new RuntimeException("File " + userJson + " not found:" + e.getMessage(), e);
         }
     }
 
-    private void createUserIfNotExists(User user) {
-        if (userService.isUserExistsByLogin(user.getUsername())) {
+    private void createUserIfNotExists(UserDto userDto) {
+        if (userService.isUserExistsByLogin(userDto.getUsername())) {
             return;
         }
-        userService.registrationUser(user);
+        userService.registrationUser(userDto);
     }
 }
