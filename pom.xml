@@ -10,18 +10,19 @@
 		<relativePath/>
 	</parent>
 
-    <groupId>com.event</groupId>
-    <artifactId>event-manager-platform</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
-    <packaging>pom</packaging>
     <name>event-manager-platform</name>
+    <artifactId>event-manager-platform</artifactId>
+    <groupId>com.event</groupId>
+    <version>0.0.1-SNAPSHOT</version>
+
+    <packaging>pom</packaging>
     <description>EventHub.com</description>
 
     <modules>
-        <module>event-notifier</module>
+        <module>auth-common</module>
         <module>event-common</module>
         <module>event-manager</module>
-        <module>auth-common</module>
+        <module>event-notifier</module>
     </modules>
 
     <properties>
@@ -60,23 +61,6 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-actuator</artifactId>
         </dependency>
-
-<!--        <dependency>-->
-<!--            <groupId>io.micrometer</groupId>-->
-<!--            <artifactId>micrometer-registry-prometheus</artifactId>-->
-<!--        </dependency>-->
-
-<!--        <dependency>-->
-<!--            <groupId>io.opentracing.contrib</groupId>-->
-<!--            <artifactId>opentracing-spring-cloud-starter</artifactId>-->
-<!--            <version>3.3.2</version>-->
-<!--        </dependency>-->
-<!--        <dependency>-->
-<!--            <groupId>io.jaegertracing</groupId>-->
-<!--            <artifactId>jaeger-client</artifactId>-->
-<!--            <version>1.8.0</version>-->
-<!--        </dependency>-->
-
     </dependencies>
 
 </project>

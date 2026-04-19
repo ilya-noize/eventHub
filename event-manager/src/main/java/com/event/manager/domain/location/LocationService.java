@@ -1,7 +1,7 @@
 package com.event.manager.domain.location;
 
+import com.event.manager.db.LocationEntity;
 import com.event.manager.db.LocationRepository;
-import com.event.manager.db.entity.LocationEntity;
 import com.event.manager.domain.LocationMapper;
 import com.event.manager.filter.LocationSearchFilter;
 import jakarta.persistence.EntityNotFoundException;

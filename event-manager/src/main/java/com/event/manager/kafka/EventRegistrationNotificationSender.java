@@ -2,7 +2,7 @@ package com.event.manager.kafka;
 
 import com.event.common.EventType;
 import com.event.common.registration.EventRegistrationNotificationPayload;
-import com.event.manager.db.entity.EventEntity;
+import com.event.manager.db.EventEntity;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -26,9 +26,9 @@ public class EventRegistrationNotificationSender implements NotificationSender<E
 
         var future = kafkaTemplate.send("registration-topic", payload.getMessageId(), payload);
 
-        future.whenComplete((result, e) -> {
-            log.debug("Sent notification {} successfully", result.getProducerRecord().key());
-        });
+        future.whenComplete(
+                (result, e) -> log.debug("Sent notification {} successfully", result.getProducerRecord().key())
+        );
     }
 
     public void sendCreateRegistration(EventEntity event, Long userId) {

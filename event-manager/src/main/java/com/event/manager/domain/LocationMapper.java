@@ -5,7 +5,7 @@ import com.event.manager.api.location.LocationPatchRequest;
 import com.event.manager.api.location.LocationPostRequest;
 import com.event.manager.api.location.LocationPutRequest;
 import com.event.manager.api.location.LocationResponse;
-import com.event.manager.db.entity.LocationEntity;
+import com.event.manager.db.LocationEntity;
 import com.event.manager.domain.location.LocationDto;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;

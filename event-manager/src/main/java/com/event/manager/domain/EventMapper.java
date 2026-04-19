@@ -3,7 +3,7 @@ package com.event.manager.domain;
 import com.event.manager.api.event.EventPostRequest;
 import com.event.manager.api.event.EventPutRequest;
 import com.event.manager.api.event.EventResponse;
-import com.event.manager.db.entity.EventEntity;
+import com.event.manager.db.EventEntity;
 import com.event.manager.domain.event.EventDto;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;

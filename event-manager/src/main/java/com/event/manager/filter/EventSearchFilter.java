@@ -1,6 +1,6 @@
 package com.event.manager.filter;
 
-import com.event.manager.db.entity.EventEntity;
+import com.event.manager.db.EventEntity;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

@@ -1,8 +1,8 @@
 package com.event.manager.domain.event;
 
+import com.event.manager.db.EventEntity;
 import com.event.manager.db.EventRepository;
-import com.event.manager.db.entity.EventEntity;
-import com.event.manager.db.entity.EventStatus;
+import com.event.manager.db.EventStatus;
 import com.event.manager.domain.EventUpdateStatusScheduler;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -50,7 +50,6 @@ public class EventService {
     /**
      * @see EventManager#deleteById(Long)
      * @see EventManager#updateEventById(Long, EventDto)
-     * @param eventId
      * @return Событие с регистрациями которое еще не началось
      */
     public Optional<EventEntity> findByIdAndWaitStartWithRegistrations(Long eventId) {

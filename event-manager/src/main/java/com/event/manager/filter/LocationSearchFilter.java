@@ -1,7 +1,9 @@
 package com.event.manager.filter;
 
-import com.event.manager.db.entity.LocationEntity;
+import com.event.manager.db.LocationEntity;
 import jakarta.validation.constraints.Min;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 import org.springframework.data.jpa.domain.Specification;
 
 import java.lang.reflect.Field;
@@ -9,14 +11,14 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-
+@AllArgsConstructor
+@NoArgsConstructor
 public class LocationSearchFilter extends PageableFilter{
     private String name;
     private String address;
     @Min(5)
     private Integer capacity;
     private String description;
-
 
     public Specification<LocationEntity> toSpecification() {
         return nameSpec()

@@ -1,8 +1,8 @@
 package com.event.notifier.secure;
 
-import com.auth.security.JwtTokenFilter;
-import com.auth.security.RestAccessDeniedHandler;
-import com.auth.security.RestAuthenticationEntryPoint;
+import com.event.security.JwtTokenFilter;
+import com.event.security.RestAccessDeniedHandler;
+import com.event.security.RestAuthenticationEntryPoint;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;

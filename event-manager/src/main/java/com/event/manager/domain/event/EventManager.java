@@ -1,21 +1,21 @@
 package com.event.manager.domain.event;
 
-import com.auth.domain.UserDto;
-import com.auth.security.AuthorizationService;
 import com.event.common.UserRole;
 import com.event.common.event.EventChange;
 import com.event.common.event.EventNotificationPayload;
+import com.event.domain.UserDto;
 import com.event.manager.api.event.EventController;
 import com.event.manager.api.event.EventPutRequest;
-import com.event.manager.db.entity.EventEntity;
-import com.event.manager.db.entity.EventRegistrationEntity;
-import com.event.manager.db.entity.EventStatus;
-import com.event.manager.db.entity.LocationEntity;
+import com.event.manager.db.EventEntity;
+import com.event.manager.db.EventRegistrationEntity;
+import com.event.manager.db.EventStatus;
+import com.event.manager.db.LocationEntity;
 import com.event.manager.domain.EventMapper;
 import com.event.manager.domain.location.LocationService;
 import com.event.manager.filter.EventSearchFilter;
 import com.event.manager.filter.PageableFilter;
 import com.event.manager.kafka.EventNotificationSender;
+import com.event.security.AuthorizationService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

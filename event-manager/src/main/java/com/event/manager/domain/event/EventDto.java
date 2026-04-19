@@ -20,5 +20,19 @@ public class EventDto {
     private Integer duration;
     private Long locationId;
     private String status;
+
+    public EventDto.EventDtoBuilder toBuilder() {
+        return EventDto.builder()
+                .id(this.id)
+                .name(this.name)
+                .ownerId(this.ownerId)
+                .maxPlaces(this.maxPlaces)
+                .occupiedPlaces(this.occupiedPlaces)
+                .date(this.date)
+                .cost(this.cost)
+                .duration(this.duration)
+                .locationId(this.locationId)
+                .status(this.status);
+    }
 }
 

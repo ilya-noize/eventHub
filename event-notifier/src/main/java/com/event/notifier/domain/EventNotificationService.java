@@ -1,6 +1,5 @@
 package com.event.notifier.domain;
 
-import com.auth.security.AuthorizationService;
 import com.event.common.EventType;
 import com.event.common.event.EventChange;
 import com.event.common.event.EventNotificationPayload;
@@ -9,6 +8,7 @@ import com.event.notifier.db.Notification;
 import com.event.notifier.db.NotificationEventPayload;
 import com.event.notifier.db.NotificationEventPayloadRepository;
 import com.event.notifier.db.NotificationRepository;
+import com.event.security.AuthorizationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -24,19 +24,19 @@ import java.util.UUID;
 @Slf4j
 public class EventNotificationService {
     private final AuthorizationService authorizationService;
-    private final NotificationRepository notificationRepo;
-    private final NotificationEventPayloadRepository notificationEventPayLoadRepo;
+    private final NotificationRepository notificationRepository;
+    private final NotificationEventPayloadRepository notificationEventPayloadRepository;
     private final JsonMapper jacksonJsonMapper;
 
     @Transactional
     public void markNotificationAsRead(List<Long> ids) {
         Long userId = authorizationService.getCurrentAuthorizedUserId();
-        notificationRepo.markNotificationAsRead(userId, ids);
+        notificationRepository.markNotificationAsRead(userId, ids);
     }
 
     public List<NotificationResponse> getNotifications() {
         Long userId = authorizationService.getCurrentAuthorizedUserId();
-        List<Notification> allByUserId = notificationRepo.findAllByUserId(userId);
+        List<Notification> allByUserId = notificationRepository.findAllByUserId(userId);
         return allByUserId.isEmpty()
                 ? List.of()
                 : allByUserId.stream()
@@ -73,7 +73,7 @@ public class EventNotificationService {
 
     @Transactional
     public void save(UUID key, EventNotificationPayload value) {
-        if (notificationEventPayLoadRepo.existsByMessageId(key)) {
+        if (notificationEventPayloadRepository.existsByMessageId(key)) {
             return;
         }
         List<EventChange> changes = value.getChanges();
@@ -94,7 +94,7 @@ public class EventNotificationService {
                         .payload(payload)
                         .build())
                 .toList();
-        notificationEventPayLoadRepo.save(payload);
-        notificationRepo.saveAll(notifications);
+        notificationEventPayloadRepository.save(payload);
+        notificationRepository.saveAll(notifications);
     }
 }

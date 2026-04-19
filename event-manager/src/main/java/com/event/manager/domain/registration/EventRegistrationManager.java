@@ -1,13 +1,13 @@
 package com.event.manager.domain.registration;
 
-import com.auth.security.AuthorizationService;
-import com.event.manager.db.entity.EventEntity;
-import com.event.manager.db.entity.EventRegistrationEntity;
-import com.event.manager.db.entity.EventStatus;
+import com.event.manager.db.EventEntity;
+import com.event.manager.db.EventRegistrationEntity;
+import com.event.manager.db.EventStatus;
 import com.event.manager.domain.event.EventDto;
 import com.event.manager.domain.event.EventService;
 import com.event.manager.filter.PageableFilter;
 import com.event.manager.kafka.EventRegistrationNotificationSender;
+import com.event.security.AuthorizationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
@@ -25,14 +25,18 @@ public class EventRegistrationManager {
     public void registrationEvent(Long eventId) {
         Long userId = authorizer.getCurrentAuthorizedUserId();
         EventEntity event = validateEventAndReturn(eventId, userId);
-        registerService.saveRegistrationEvent(new EventRegistrationEntity(userId, event));
+        EventRegistrationEntity registration = EventRegistrationEntity.builder()
+                .userId(userId)
+                .event(event)
+                .build();
+        registerService.saveRegistrationEvent(registration);
 
         sender.sendCancelRegistration(event, userId);
     }
 
     @Transactional
     public void cancelRegisteredUserFromTheListParticipantsInThisEventById(Long eventId) {
-        EventEntity event = getEventWaitingStart(eventId, false);
+        EventEntity event = getEventWaitingStart(eventId);
 
         Long userId = authorizer.getCurrentAuthorizedUserId();
         registerService.cancelRegistrationEvent(userId, event);
@@ -76,11 +80,9 @@ public class EventRegistrationManager {
      * @see #registrationEvent(Long)
      * @see #cancelRegisteredUserFromTheListParticipantsInThisEventById(Long)
      */
-    private EventEntity getEventWaitingStart(Long eventId, boolean isRegister) {
+    private EventEntity getEventWaitingStart(Long eventId) {
         return eventService.findByIdAndWaitStart(eventId).orElseThrow(
-                () -> new IllegalStateException("Can't %sregister for started or canceled event"
-                        .formatted(isRegister ? "" : "cancel ")
-                )
+                () -> new IllegalStateException("Can't cancel register for started or canceled event")
         );
     }
 }

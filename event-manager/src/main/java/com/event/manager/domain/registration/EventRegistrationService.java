@@ -1,9 +1,9 @@
 package com.event.manager.domain.registration;
 
+import com.event.manager.db.EventEntity;
+import com.event.manager.db.EventRegistrationEntity;
 import com.event.manager.db.EventRegistrationRepository;
 import com.event.manager.db.EventRepository;
-import com.event.manager.db.entity.EventEntity;
-import com.event.manager.db.entity.EventRegistrationEntity;
 import com.event.manager.domain.EventMapper;
 import com.event.manager.domain.event.EventDto;
 import com.event.manager.filter.PageableFilter;
