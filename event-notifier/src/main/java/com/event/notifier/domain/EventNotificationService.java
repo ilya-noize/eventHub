@@ -34,9 +34,10 @@ public class EventNotificationService {
         notificationRepository.markNotificationAsRead(userId, ids);
     }
 
+    @Transactional(readOnly = true)
     public List<NotificationResponse> getNotifications() {
         Long userId = authorizationService.getCurrentAuthorizedUserId();
-        List<Notification> allByUserId = notificationRepository.findAllByUserId(userId);
+        List<Notification> allByUserId = notificationRepository.findAllByUserIdAndHaveReadFalse(userId);
         return allByUserId.isEmpty()
                 ? List.of()
                 : allByUserId.stream()
@@ -55,27 +56,13 @@ public class EventNotificationService {
                 .toList();
     }
 
-    public String buildMessage(String eventTypeName) {
-        Map<String, String> messages = Map.of(
-                EventType.CREATE.name(), "Вы создали новое событие!",
-                EventType.UPDATE.name(), """
-                Мы пересмотрели организацию и внесли изменения.
-                Теперь всё будет иначе, чтобы каждому было комфортно и весело.
-                """,
-                EventType.DELETE.name(), """
-                К сожалению, мероприятие отменяется.
-                Мы долго старались сделать его интересным и полезным, но не получилось.
-                Надеемся, что в будущем сможем устроить что-то похожее.
-                """
-        );
-        return messages.get(eventTypeName);
+    @Transactional(readOnly = true)
+    public boolean notExistsByKey(UUID key) {
+        return !notificationEventPayloadRepository.existsByMessageId(key);
     }
 
     @Transactional
     public void save(UUID key, EventNotificationPayload value) {
-        if (notificationEventPayloadRepository.existsByMessageId(key)) {
-            return;
-        }
         List<EventChange> changes = value.getChanges();
         String payloadJson = jacksonJsonMapper.writeValueAsString(changes);
 
@@ -96,5 +83,21 @@ public class EventNotificationService {
                 .toList();
         notificationEventPayloadRepository.save(payload);
         notificationRepository.saveAll(notifications);
+    }
+
+    private String buildMessage(String eventTypeName) {
+        Map<String, String> messages = Map.of(
+                EventType.CREATE.name(), "Вы создали новое событие!",
+                EventType.UPDATE.name(), """
+                Мы пересмотрели организацию и внесли изменения.
+                Теперь всё будет иначе, чтобы каждому было комфортно и весело.
+                """,
+                EventType.DELETE.name(), """
+                К сожалению, мероприятие отменяется.
+                Мы долго старались сделать его интересным и полезным, но не получилось.
+                Надеемся, что в будущем сможем устроить что-то похожее.
+                """
+        );
+        return messages.get(eventTypeName);
     }
 }

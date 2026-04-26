@@ -6,11 +6,13 @@ import com.event.security.RestAccessDeniedHandler;
 import com.event.security.RestAuthenticationEntryPoint;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import tools.jackson.databind.ObjectMapper;
 
 @Configuration
 @EnableScheduling
+@EnableJpaAuditing
 public class ApplicationConfiguration {
 
     @Bean

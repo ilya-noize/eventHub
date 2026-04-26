@@ -32,6 +32,8 @@ public class EventKafkaListener implements KafkaListenable<EventNotificationPayl
         UUID key = consumerRecord.key();
         log.info("Received event ID={} ", key);
         var value = consumerRecord.value();
-        eventNotificationService.save(key, value);
+        if (eventNotificationService.notExistsByKey(key)) {
+            eventNotificationService.save(key, value);
+        }
     }
 }

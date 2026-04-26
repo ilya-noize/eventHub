@@ -47,7 +47,7 @@ public class EventRegistrationManager {
     @Transactional(readOnly = true)
     public Page<EventDto> getMyRegistrationsEvent(PageableFilter filter) {
         Long userId = authorizer.getCurrentAuthorizedUserId();
-        return registerService.getMyRegistrationsEvent(userId, filter);
+        return registerService.getRegistrationsEvent(userId, filter);
     }
 
     /**
@@ -59,7 +59,7 @@ public class EventRegistrationManager {
      * @see #registrationEvent(Long)
      */
     private EventEntity validateEventAndReturn(Long eventId, Long userId) {
-        EventEntity event = eventService.findById(eventId); //getEventWaitingStart(eventId, true);
+        EventEntity event = eventService.findById(eventId);
         if (!event.getStatus().equals(EventStatus.WAIT_START.name())) {
             throw new IllegalStateException("Can't register for started or canceled event");
         }

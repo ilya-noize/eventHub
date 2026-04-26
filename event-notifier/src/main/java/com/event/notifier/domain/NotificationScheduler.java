@@ -18,7 +18,7 @@ public class NotificationScheduler {
     @Transactional
     @Scheduled(cron = "0 * * ? * *", zone = "Europe/Moscow")
     void deleteExpiredNotifications() {
-        notificationRepository.deleteByHaveRead(true);
+        notificationRepository.deleteReadingNotificationsAfterSevenDays();
         notificationEventPayloadRepository.deleteOrphanedPayloads();
     }
 }

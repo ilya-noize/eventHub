@@ -37,7 +37,7 @@ public class EventRegistrationService {
         eventRegistrationRepository.delete(registration);
     }
 
-    public Page<EventDto> getMyRegistrationsEvent(Long userId, PageableFilter filter) {
+    public Page<EventDto> getRegistrationsEvent(Long userId, PageableFilter filter) {
         Page<EventDto> pages = eventRegistrationRepository
                 .findAllEventWithRegistrations(userId, filter.toPageable())
                 .map(eventMapper::toDomain);

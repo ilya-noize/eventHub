@@ -16,7 +16,13 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
             """)
     void markNotificationAsRead(Long userId, List<Long> ids);
 
-    List<Notification> findAllByUserId(Long userId);
+    @Modifying(clearAutomatically = true)
+    @Query(value = """
+            DELETE FROM event_notifications n
+            WHERE have_read = TRUE
+                AND read_at <= NOW() - INTERVAL '7' DAY
+            """, nativeQuery=true)
+    void deleteReadingNotificationsAfterSevenDays();
 
-    void deleteByHaveRead(boolean b);
+    List<Notification> findAllByUserIdAndHaveReadFalse(Long userId);
 }
