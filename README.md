@@ -1,14 +1,38 @@
-# eventHub
+# event-manager-platform
 
-##environments
+## Документация
+
+### Event Manager API
+
+#### [localhost:8080/swagger-ui/](http://localhost:8080/swagger-ui/index.html#/)
+
+### Notification API
+
+#### [localhost:8081/swagger-ui/](http://localhost:8081/swagger-ui/index.html#/)
+
+### Auth API
+
+#### [localhost:8082/swagger-ui](http://localhost:8082/swagger-ui/index.html#/)
+
+
+
+## environments
 
 | name              | value                                                                                                        |
 |-------------------|--------------------------------------------------------------------------------------------------------------|
 | POSTGRES_USER     | root                                                                                                         |
 | POSTGRES_PASSWORD | root                                                                                                         |
 | JWT_SECRET_KEY    | [Free JWT Secret Key Generator / Secure HS256, HS384, HS512 Keys Online](https://jwtsecretkeygenerator.com/) |
-| JWT_LIFETIME      | 300                                                                                                          |
+| JWT_LIFETIME      | 86400                                                                                                        |
 
+example environment file (.env)
+```env
+POSTGRES_USER=root
+POSTGRES_PASSWORD=root
+
+JWT_SECRET_KEY=###########################################
+JWT_LIFETIME=86400
+```
 
 ## docker
 

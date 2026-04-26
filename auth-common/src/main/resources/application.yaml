@@ -1,0 +1,46 @@
+server:
+  port: ${AUTH_PORT}
+
+#  spring.config.import=optional:file:.env
+
+spring:
+  config:
+    import:
+      - optional:file:.env
+      - optional:classpath:.env
+      - optional:file:${user.dir}/.env
+  application:
+    name: ${AUTH_NAME}
+  datasource:
+    url: ${AUTH_DATASOURCE_URL}
+    username: ${AUTH_POSTGRES_USER}
+    password: ${AUTH_POSTGRES_PASSWORD}
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: true
+  redis:
+    url: ${AUTH_REDIS_URL}
+#    host: localhost
+#    port: 6379
+#    password: root
+    lettuce:
+      pool:
+        max-active: 8
+        max-idle: 8
+        min-idle: 0
+
+jwt:
+  secret-key: ${JWT_SECRET_KEY}
+  lifetime: ${JWT_LIFETIME}
+  refresh-expiration-min: ${JWT_REFRESH_EXPIRATION_MIN}
+#  secret-key: your-64-character-long-secret-key-here-must-be-long-enough-for-HS512==
+#  lifetime: 720 minutes is 12 hrs
+#  refresh-expiration-min: 1440 minutes is 24 hrs
+
+logging:
+  level:
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+    org.springframework.security: DEBUG
+    com.auth.security: DEBUG
