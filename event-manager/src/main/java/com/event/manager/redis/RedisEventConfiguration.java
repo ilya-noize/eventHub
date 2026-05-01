@@ -1,6 +1,6 @@
 package com.event.manager.redis;
 
-import com.event.manager.domain.event.EventDto;
+import com.event.manager.db.EventEntity;
 import org.springframework.cache.CacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -21,14 +21,14 @@ public class RedisEventConfiguration {
     private static final long CACHE_TTL = 1;
 
     @Bean
-    public RedisTemplate<String, EventDto> redisEvent(
+    public RedisTemplate<String, EventEntity> redisEvent(
             RedisConnectionFactory redisConnectionFactory,
             ObjectMapper objectMapper
     ) {
-        RedisTemplate<String, EventDto> redisTemplate = new RedisTemplate<>();
+        RedisTemplate<String, EventEntity> redisTemplate = new RedisTemplate<>();
         redisTemplate.setConnectionFactory(redisConnectionFactory);
         redisTemplate.setKeySerializer(new StringRedisSerializer());
-        var serializer = new JacksonJsonRedisSerializer<>(objectMapper, EventDto.class);
+        var serializer = new JacksonJsonRedisSerializer<>(objectMapper, EventEntity.class);
         redisTemplate.setValueSerializer(serializer);
 
         redisTemplate.afterPropertiesSet();
@@ -40,7 +40,7 @@ public class RedisEventConfiguration {
             RedisConnectionFactory redisConnectionFactory,
             ObjectMapper objectMapper
     ) {
-        var serializer = new JacksonJsonRedisSerializer<>(objectMapper, EventDto.class);
+        var serializer = new JacksonJsonRedisSerializer<>(objectMapper, EventEntity.class);
         RedisCacheConfiguration configuration = RedisCacheConfiguration.defaultCacheConfig()
                 .entryTtl(Duration.ofMinutes(CACHE_TTL))
                 .serializeKeysWith(RedisSerializationContext.SerializationPair.fromSerializer(new StringRedisSerializer()))
