@@ -10,6 +10,7 @@ import com.event.manager.db.EventEntity;
 import com.event.manager.db.EventRegistrationEntity;
 import com.event.manager.db.EventStatus;
 import com.event.manager.db.LocationEntity;
+import com.event.manager.db.TrackChange;
 import com.event.manager.domain.EventMapper;
 import com.event.manager.domain.location.LocationManager;
 import com.event.manager.filter.EventSearchFilter;
@@ -24,6 +25,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
@@ -230,34 +232,38 @@ public class EventManager {
      */
     private List<EventChange> buildChanges(EventEntity updated, EventEntity existing) {
         List<EventChange> changes = new ArrayList<>();
+        Field[] fields = EventEntity.class.getDeclaredFields();
 
-        if (isDifferentValue(updated.getName(), existing.getName())) {
-            changes.add(buildChange("name", existing.getName(), updated.getName()));
-        }
+        for (Field field : fields) {
+            if (field.getAnnotation(TrackChange.class) == null) {
+                continue;
+            }
 
-        if (isDifferentValue(updated.getMaxPlaces(), existing.getMaxPlaces())) {
-            changes.add(buildChange("maxPlaces", existing.getMaxPlaces(), updated.getMaxPlaces()));
-        }
+            field.setAccessible(true);
+            try {
+                Object oldValue = field.get(existing);
+                Object newValue = field.get(updated);
 
-        if (isDifferentValue(updated.getDate(), existing.getDate())) {
-            changes.add(buildChange("date", existing.getDate(), updated.getDate()));
-        }
-
-        if (isDifferentValue(updated.getCost(), existing.getCost())) {
-            changes.add(buildChange("cost", existing.getCost(), updated.getCost()));
-        }
-
-        if (isDifferentValue(updated.getDuration(), existing.getDuration())) {
-            changes.add(buildChange("duration", existing.getDuration(), updated.getDuration()));
-        }
-
-        Long oldLocationId = existing.getLocation() != null ? existing.getLocation().getId() : null;
-        Long newLocationId = updated.getLocation() != null ? updated.getLocation().getId() : null;
-        if (isDifferentValue(oldLocationId, newLocationId)) {
-            changes.add(buildChange("locationId", oldLocationId, newLocationId));
+                if ("location".equals(field.getName())) {
+                    Long oldLocationId = extractLocationId(oldValue);
+                    Long newLocationId = extractLocationId(newValue);
+                    if (isDifferentValue(oldLocationId, newLocationId)) {
+                        changes.add(buildChange("locationId", oldLocationId, newLocationId));
+                    }
+                } else if (isDifferentValue(oldValue, newValue)) {
+                    changes.add(buildChange(field.getName(), oldValue, newValue));
+                }
+            } catch (IllegalAccessException e) {
+                throw new RuntimeException("Ошибка доступа к полю: " + field.getName(), e);
+            }
         }
 
         return changes;
+    }
+
+    private Long extractLocationId(Object entity) {
+        LocationEntity location = (LocationEntity) entity;
+        return location != null ? location.getId() : null;
     }
 
     private EventChange buildChange(String field, Object oldValue, Object newValue) {
