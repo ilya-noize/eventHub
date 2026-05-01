@@ -11,7 +11,7 @@ import com.event.manager.db.EventRegistrationEntity;
 import com.event.manager.db.EventStatus;
 import com.event.manager.db.LocationEntity;
 import com.event.manager.domain.EventMapper;
-import com.event.manager.domain.location.LocationService;
+import com.event.manager.domain.location.LocationManager;
 import com.event.manager.filter.EventSearchFilter;
 import com.event.manager.filter.PageableFilter;
 import com.event.manager.kafka.EventNotificationSender;
@@ -39,7 +39,7 @@ public class EventManager {
     private final EventService eventService;
     private final EventMapper eventMapper;
 
-    private final LocationService locationService;
+    private final LocationManager locationService;
 
     @Transactional
     public EventDto createEvent(EventDto eventDto) {
