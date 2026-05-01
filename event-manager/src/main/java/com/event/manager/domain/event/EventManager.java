@@ -20,7 +20,9 @@ import com.event.security.AuthorizationService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,6 +38,8 @@ import static com.event.common.tool.Utils.isDifferentValue;
 @Service("eventManager")
 @RequiredArgsConstructor
 public class EventManager {
+    private static final String CACHE_PREFIX_EVENT = "event::";
+    private final RedisTemplate<String, EventEntity> redisTemplate;
     private final AuthorizationService authorizationService;
     private final EventNotificationSender eventNotificationSender;
     private final EventService eventService;
@@ -85,9 +89,12 @@ public class EventManager {
     }
 
     public void deleteById(Long id) {
-        EventEntity event = eventService.findByIdAndWaitStartWithRegistrations(id).orElseThrow(
-                () -> new EntityNotFoundException("No such event to delete. ID=%s".formatted(id))
-        );
+        EventEntity event = redisTemplate.opsForValue().getAndDelete(cacheKey(id));
+        if (event == null) {
+            event = eventService.findByIdAndWaitStartWithRegistrations(id).orElseThrow(
+                    () -> new EntityNotFoundException("No such event to delete. ID=%s".formatted(id))
+            );
+        }
         if (!event.getStatus().equals(EventStatus.WAIT_START.name())) {
             throw new IllegalStateException("Can't cancel the started or finished event");
         }
@@ -109,22 +116,24 @@ public class EventManager {
     @Transactional
     public EventDto updateEventById(Long id, EventDto eventDto) {
         eventService.checkIfDateIsFree(eventDto);
-
-        EventEntity existsEvent = eventService.findByIdAndWaitStartWithRegistrations(id).orElseThrow(
-                () -> new EntityNotFoundException("No such event to update. ID=%s".formatted(id))
-        );
+        EventEntity existsEvent = redisTemplate.opsForValue().getAndDelete(cacheKey(id));
+        if (existsEvent == null) {
+            existsEvent = eventService.findByIdAndWaitStartWithRegistrations(id).orElseThrow(
+                    () -> new EntityNotFoundException("No such event to update. ID=%s".formatted(id))
+            );
+        }
         EventEntity entityToSave = eventMapper.toEntity(eventDto);
 
         validateMaxAndOccupiedPlaces(entityToSave.getMaxPlaces(), existsEvent.getOccupiedPlaces());
         Long ownerId = existsEvent.getOwnerId();
-        Long currentAuthUserID = authorizationService.getCurrentAuthorizedUserId();
-        List<Long> subscribers = getSubscribersWithCurrentAuthUser(currentAuthUserID, existsEvent);
+        Long currentAuthorizedUserId = authorizationService.getCurrentAuthorizedUserId();
+        List<Long> subscribers = getSubscribersWithCurrentAuthUser(currentAuthorizedUserId, existsEvent);
         List<EventChange> changes = buildChanges(existsEvent, entityToSave);
 
         eventNotificationSender.sendUpdateEvent(
                 EventNotificationPayload.builder()
                         .ownerId(ownerId)
-                        .changedById(currentAuthUserID)
+                        .changedById(currentAuthorizedUserId)
                         .subscribers(subscribers)
                         .changes(changes)
                         .build()
@@ -136,6 +145,7 @@ public class EventManager {
         return eventMapper.toDomain(entityToSave);
     }
 
+    @Cacheable(value = "event", key = "#id")
     public EventDto getEventById(Long id) {
         return eventMapper.toDomain(eventService.findById(id));
     }
@@ -272,5 +282,9 @@ public class EventManager {
                 .oldValue(oldValue)
                 .newValue(newValue)
                 .build();
+    }
+
+    private String cacheKey(Long eventId) {
+        return CACHE_PREFIX_EVENT.concat(":").concat((String.valueOf(eventId)).intern());
     }
 }
