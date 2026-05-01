@@ -87,7 +87,7 @@ public class LocationManager {
     }
 
     public boolean isUniqueNameAndAddressLocation(LocationDto locationDto) {
-        return !service.existsByNameOrAddress(locationDto);
+        return service.existsByNameOrAddress(locationDto);
     }
 
     public boolean validateLocationFromRequestedPlaces(
