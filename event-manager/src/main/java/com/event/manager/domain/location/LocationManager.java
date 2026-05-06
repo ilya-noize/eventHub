@@ -18,7 +18,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 @Slf4j
 public class LocationManager {
-    private static final String CACHE_PREFIX_LOCATION = "location:";
+    private static final String CACHE_PREFIX_LOCATION = "location::";
     private final RedisTemplate<String, LocationEntity> redisTemplate;
     private final LocationService service;
     private final LocationMapper locationMapper;

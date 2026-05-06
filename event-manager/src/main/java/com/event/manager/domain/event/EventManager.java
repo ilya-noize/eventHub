@@ -1,21 +1,17 @@
 package com.event.manager.domain.event;
 
 import com.event.common.UserRole;
-import com.event.common.event.EventChange;
 import com.event.common.event.EventNotificationPayload;
 import com.event.domain.UserDto;
 import com.event.manager.api.event.EventController;
 import com.event.manager.api.event.EventPutRequest;
 import com.event.manager.db.EventEntity;
-import com.event.manager.db.EventRegistrationEntity;
 import com.event.manager.db.EventStatus;
 import com.event.manager.db.LocationEntity;
-import com.event.manager.db.TrackChange;
 import com.event.manager.domain.EventMapper;
 import com.event.manager.domain.location.LocationManager;
 import com.event.manager.filter.EventSearchFilter;
 import com.event.manager.filter.PageableFilter;
-import com.event.manager.kafka.EventNotificationSender;
 import com.event.security.AuthorizationService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -27,36 +23,39 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.lang.reflect.Field;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Stream;
+import java.util.Objects;
+import java.util.Set;
 
-import static com.event.common.tool.Utils.isDifferentValue;
+import static com.event.manager.domain.event.EventNotifier.StatusUpdateNotificationParameters;
+import static com.event.manager.domain.event.EventNotifier.UpdateNotificationParameters;
 
 @Slf4j
 @Service("eventManager")
 @RequiredArgsConstructor
 public class EventManager {
     private static final String CACHE_PREFIX_EVENT = "event::";
+
     private final RedisTemplate<String, EventEntity> redisTemplate;
     private final AuthorizationService authorizationService;
-    private final EventNotificationSender eventNotificationSender;
+    private final EventValidationService eventValidationService;
     private final EventService eventService;
+    private final LocationManager locationService;
+    private final EventNotifier eventNotifier;
     private final EventMapper eventMapper;
 
-    private final LocationManager locationService;
+
 
     @Transactional
     public EventDto createEvent(EventDto eventDto) {
         Long ownerId = authorizationService.getCurrentAuthorizedUserId();
         locationService.validateLocationFromRequestedPlaces(eventDto.getLocationId(), eventDto.getMaxPlaces());
-        eventService.checkIfDateIsFree(eventDto);
+        eventValidationService.checkIfDateIsFree(eventDto);
         EventEntity eventEntity = enrichedEventToSave(eventMapper.toEntity(eventDto), ownerId);
 
         EventEntity saved = eventService.save(eventEntity);
 
-        eventNotificationSender.sendCreateEvent(EventNotificationPayload.builder()
+        eventNotifier.sendCreateNotification(EventNotificationPayload.builder()
                 .ownerId(ownerId)
                 .eventId(saved.getId())
                 .subscribers(List.of(ownerId))
@@ -70,14 +69,14 @@ public class EventManager {
         Long ownerId = authorizationService.getCurrentAuthorizedUserId();
         List<EventEntity> events = eventDtos.stream()
                 .filter(e -> locationService.validateLocationFromRequestedPlaces(e.getLocationId(), e.getMaxPlaces()))
-                .filter(eventService::checkIfDateIsFree)
+                .filter(eventValidationService::checkIfDateIsFree)
                 .map(eventMapper::toEntity)
                 .map(event -> enrichedEventToSave(event, ownerId))
                 .toList();
 
         List<EventEntity> savedAllEvents = eventService.saveAll(events);
 
-        savedAllEvents.forEach(event -> eventNotificationSender.sendCreateEvent(
+        savedAllEvents.forEach(event -> eventNotifier.sendCreateNotification(
                 EventNotificationPayload.builder()
                         .ownerId(ownerId)
                         .eventId(event.getId())
@@ -90,59 +89,49 @@ public class EventManager {
 
     public void deleteById(Long id) {
         EventEntity event = redisTemplate.opsForValue().getAndDelete(cacheKey(id));
-        if (event == null) {
+        if (event == null || event.notStartedYet()) {
             event = eventService.findByIdAndWaitStartWithRegistrations(id).orElseThrow(
                     () -> new EntityNotFoundException("No such event to delete. ID=%s".formatted(id))
             );
         }
-        if (!event.getStatus().equals(EventStatus.WAIT_START.name())) {
-            throw new IllegalStateException("Can't cancel the started or finished event");
+        if (!event.notStartedYet()) {
+            throw new IllegalStateException("Can't cancel. Event not waiting start");
         }
-        eventService.updateEventStatusToCanceled(id);
+        eventService.updateEventStatusToCanceledById(id);
 
-        Long ownerId = event.getOwnerId();
-        Long currentAuthUserID = authorizationService.getCurrentAuthorizedUserId();
-        List<Long> subscribers = getSubscribersWithCurrentAuthUser(currentAuthUserID, event);
+        Long currentAuthorizedUserId = authorizationService.getCurrentAuthorizedUserId();
+        var changeStatusNotificationParameters = StatusUpdateNotificationParameters.builder()
+                .events(Set.of(event))
+                .status(EventStatus.CANCELED.name())
+                .currentUserId(currentAuthorizedUserId).build();
+        eventNotifier.sendStatusUpdateNotification(changeStatusNotificationParameters);
 
-        eventNotificationSender.sendDeleteEvent(EventNotificationPayload.builder()
-                .ownerId(ownerId)
-                .eventId(event.getId())
-                .subscribers(subscribers)
-                .changedById(currentAuthUserID)
-                .build()
-        );
     }
 
     @Transactional
     public EventDto updateEventById(Long id, EventDto eventDto) {
-        eventService.checkIfDateIsFree(eventDto);
-        EventEntity existsEvent = redisTemplate.opsForValue().getAndDelete(cacheKey(id));
-        if (existsEvent == null) {
-            existsEvent = eventService.findByIdAndWaitStartWithRegistrations(id).orElseThrow(
+        if (!Objects.equals(id, eventDto.getId())) throw new IllegalArgumentException("ID mismatch");
+        eventValidationService.checkIfDateIsFree(eventDto);
+        EventEntity oldEvent = redisTemplate.opsForValue().getAndDelete(cacheKey(id));
+        if (oldEvent == null || oldEvent.notStartedYet()) {
+            oldEvent = eventService.findByIdAndWaitStartWithRegistrations(id).orElseThrow(
                     () -> new EntityNotFoundException("No such event to update. ID=%s".formatted(id))
             );
         }
-        EventEntity entityToSave = eventMapper.toEntity(eventDto);
+        EventEntity updatedEvent = eventMapper.toEntity(eventDto);
 
-        validateMaxAndOccupiedPlaces(entityToSave.getMaxPlaces(), existsEvent.getOccupiedPlaces());
-        Long ownerId = existsEvent.getOwnerId();
-        Long currentAuthorizedUserId = authorizationService.getCurrentAuthorizedUserId();
-        List<Long> subscribers = getSubscribersWithCurrentAuthUser(currentAuthorizedUserId, existsEvent);
-        List<EventChange> changes = buildChanges(existsEvent, entityToSave);
+        eventValidationService.validateMaxAndOccupiedPlaces(updatedEvent.getMaxPlaces(), oldEvent.getOccupiedPlaces());
+        enrichedEventToUpdate(updatedEvent, oldEvent);
+        eventService.save(updatedEvent);
 
-        eventNotificationSender.sendUpdateEvent(
-                EventNotificationPayload.builder()
-                        .ownerId(ownerId)
-                        .changedById(currentAuthorizedUserId)
-                        .subscribers(subscribers)
-                        .changes(changes)
-                        .build()
-        );
+        var parameters = UpdateNotificationParameters.builder()
+                .updatedEvent(updatedEvent)
+                .oldEvent(oldEvent)
+                .currentUserId(authorizationService.getCurrentAuthorizedUserId())
+                .build();
+        eventNotifier.sendUpdateNotification(parameters);
 
-        enrichedEventToUpdate(entityToSave, existsEvent);
-        eventService.save(entityToSave);
-
-        return eventMapper.toDomain(entityToSave);
+        return eventMapper.toDomain(updatedEvent);
     }
 
     @Cacheable(value = "event", key = "#id")
@@ -170,7 +159,9 @@ public class EventManager {
      */
     public boolean isEventOwnerOrAdmin(Long eventId) {
         UserDto authUserDto = authorizationService.getCurrentAuthorizedUser();
-        Long ownerId = getEventById(eventId).getOwnerId();
+
+        EventEntity event = redisTemplate.opsForValue().get(cacheKey(eventId));
+        Long ownerId = event != null ? event.getOwnerId() : getEventById(eventId).getOwnerId();
         var adminAuthority = new SimpleGrantedAuthority(UserRole.ADMIN.name());
 
         return authUserDto.getAuthorities().contains(adminAuthority)
@@ -188,29 +179,6 @@ public class EventManager {
         event.setStatus(EventStatus.WAIT_START.name());
         event.setOccupiedPlaces(0);
         return event;
-    }
-
-    /**
-     * Проверка на то что количество мест не меньше занятых
-     *
-     * @see #updateEventById(Long, EventDto)
-     */
-    public void validateMaxAndOccupiedPlaces(Integer maxPlaces, Integer occupiedPlaces) {
-        if (maxPlaces.compareTo(occupiedPlaces) < 0) {
-            throw new IllegalArgumentException("Max Places can't be less then occupied");
-        }
-    }
-
-    /**
-     * @return Все подписчики события с текущим пользователем как редактором или участником
-     * @see #updateEventById(Long, EventDto)
-     * @see #deleteById(Long)
-     */
-    private List<Long> getSubscribersWithCurrentAuthUser(Long currentAuthUserID, EventEntity event) {
-        Stream<Long> editors = Stream.of(event.getOwnerId(), currentAuthUserID);
-        Stream<Long> registrations = event.getRegistrations().stream()
-                .map(EventRegistrationEntity::getUserId);
-        return Stream.concat(editors, registrations).distinct().toList();
     }
 
     /**
@@ -234,57 +202,7 @@ public class EventManager {
         }
     }
 
-    /**
-     * Сравнивает два EventEntity и возвращает список различий в виде NotificationChange.
-     * Поля, участвующие в сравнении: name, maxPlaces, date, cost, duration, locationId.
-     *
-     * @see #updateEventById(Long, EventDto)
-     */
-    private List<EventChange> buildChanges(EventEntity updated, EventEntity existing) {
-        List<EventChange> changes = new ArrayList<>();
-        Field[] fields = EventEntity.class.getDeclaredFields();
-
-        for (Field field : fields) {
-            if (field.getAnnotation(TrackChange.class) == null) {
-                continue;
-            }
-
-            field.setAccessible(true);
-            try {
-                Object oldValue = field.get(existing);
-                Object newValue = field.get(updated);
-
-                if ("location".equals(field.getName())) {
-                    Long oldLocationId = extractLocationId(oldValue);
-                    Long newLocationId = extractLocationId(newValue);
-                    if (isDifferentValue(oldLocationId, newLocationId)) {
-                        changes.add(buildChange("locationId", oldLocationId, newLocationId));
-                    }
-                } else if (isDifferentValue(oldValue, newValue)) {
-                    changes.add(buildChange(field.getName(), oldValue, newValue));
-                }
-            } catch (IllegalAccessException e) {
-                throw new RuntimeException("Ошибка доступа к полю: " + field.getName(), e);
-            }
-        }
-
-        return changes;
-    }
-
-    private Long extractLocationId(Object entity) {
-        LocationEntity location = (LocationEntity) entity;
-        return location != null ? location.getId() : null;
-    }
-
-    private EventChange buildChange(String field, Object oldValue, Object newValue) {
-        return EventChange.builder()
-                .field(field)
-                .oldValue(oldValue)
-                .newValue(newValue)
-                .build();
-    }
-
     private String cacheKey(Long eventId) {
-        return CACHE_PREFIX_EVENT.concat(":").concat((String.valueOf(eventId)).intern());
+        return CACHE_PREFIX_EVENT.concat((String.valueOf(eventId)).intern());
     }
 }

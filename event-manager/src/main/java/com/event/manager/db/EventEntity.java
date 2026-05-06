@@ -100,4 +100,13 @@ public class EventEntity {
                 .location(this.location)
                 .status(this.status);
     }
+
+    /**
+     * Check if the current time is before than starting data
+     * AND the state equals WAIT_START
+     * @return true/false
+     */
+    public boolean notStartedYet() {
+        return status.equals(EventStatus.WAIT_START.name());
+    }
 }
