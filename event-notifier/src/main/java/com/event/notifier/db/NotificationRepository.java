@@ -14,7 +14,7 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
             SET n.haveRead = TRUE
             WHERE n.userId = :userId AND n.id IN :ids
             """)
-    void markNotificationAsRead(Long userId, List<Long> ids);
+    Long markNotificationAsRead(Long userId, List<Long> ids);
 
     @Modifying(clearAutomatically = true)
     @Query(value = """
