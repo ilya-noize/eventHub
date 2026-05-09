@@ -37,6 +37,7 @@ public class EventService {
         eventRepository.updateStatusById(id, EventStatus.CANCELED.name());
     }
 
+    @Transactional(readOnly = true)
     public EventEntity findById(Long id) {
         EventEntity event = eventRepository.findById(id).orElseThrow(
                 () -> new EntityNotFoundException("No such event. ID=%s".formatted(id))
@@ -50,18 +51,22 @@ public class EventService {
      * @see EventManager#updateEventById(Long, EventDto)
      * @return Событие с регистрациями которое еще не началось
      */
+    @Transactional(readOnly = true)
     public Optional<EventEntity> findByIdAndWaitStartWithRegistrations(Long eventId) {
         return eventRepository.findByIdWithRegistrations(eventId);
     }
 
+    @Transactional(readOnly = true)
     public Optional<EventEntity> findByIdAndWaitStart(Long eventId) {
         return eventRepository.findByIdAndStatus(eventId, EventStatus.WAIT_START.name());
     }
 
+    @Transactional(readOnly = true)
     public Page<EventEntity> findByOwner_Id(Long ownerId, Pageable pageable) {
         return eventRepository.findByOwner_Id(ownerId, pageable);
     }
 
+    @Transactional(readOnly = true)
     public Page<EventEntity> findAll(Specification<EventEntity> specification, Pageable pageable) {
         return eventRepository.findAll(specification, pageable);
     }
