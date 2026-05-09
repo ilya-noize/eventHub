@@ -102,8 +102,7 @@ public class EventEntity {
     }
 
     /**
-     * Check if the current time is before than starting data
-     * AND the state equals WAIT_START
+     * Check if state equals WAIT_START
      * @return true/false
      */
     public boolean notStartedYet() {
