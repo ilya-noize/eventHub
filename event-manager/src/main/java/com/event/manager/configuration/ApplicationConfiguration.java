@@ -4,6 +4,7 @@ import com.event.security.AuthorizationService;
 import com.event.security.JwtTokenFilter;
 import com.event.security.RestAccessDeniedHandler;
 import com.event.security.RestAuthenticationEntryPoint;
+import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableScheduling;
@@ -11,6 +12,7 @@ import tools.jackson.databind.ObjectMapper;
 
 @Configuration
 @EnableScheduling
+@EnableCaching
 public class ApplicationConfiguration {
 
     @Bean

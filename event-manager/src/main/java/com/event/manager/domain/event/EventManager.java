@@ -16,6 +16,8 @@ import com.event.security.AuthorizationService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -34,7 +36,7 @@ import static com.event.manager.domain.event.EventNotifier.UpdateNotificationPar
 @Service("eventManager")
 @RequiredArgsConstructor
 public class EventManager {
-    private static final String CACHE_PREFIX_EVENT = "event::";
+    private static final String CACHE_PREFIX_EVENT = "event";
 
     private final RedisTemplate<String, EventEntity> redisTemplate;
     private final AuthorizationService authorizationService;
@@ -87,6 +89,7 @@ public class EventManager {
         return savedAllEvents.stream().map(eventMapper::toDomain).toList();
     }
 
+    @CacheEvict(value = CACHE_PREFIX_EVENT, key = "#id")
     public void deleteById(Long id) {
         EventEntity event = redisTemplate.opsForValue().getAndDelete(cacheKey(id));
         if (event == null || event.notStartedYet()) {
@@ -109,6 +112,7 @@ public class EventManager {
     }
 
     @Transactional
+    @CachePut(value = CACHE_PREFIX_EVENT, key = "#eventDto.id")
     public EventDto updateEventById(Long id, EventDto eventDto) {
         if (!Objects.equals(id, eventDto.getId())) throw new IllegalArgumentException("ID mismatch");
         eventValidationService.checkIfDateIsFree(eventDto);
@@ -134,7 +138,7 @@ public class EventManager {
         return eventMapper.toDomain(updatedEvent);
     }
 
-    @Cacheable(value = "event", key = "#id")
+    @Cacheable(value = "event", key = "#id", unless = "#result == null")
     public EventDto getEventById(Long id) {
         return eventMapper.toDomain(eventService.findById(id));
     }
@@ -203,6 +207,6 @@ public class EventManager {
     }
 
     private String cacheKey(Long eventId) {
-        return CACHE_PREFIX_EVENT.concat((String.valueOf(eventId)).intern());
+        return CACHE_PREFIX_EVENT + ":" + eventId;
     }
 }
