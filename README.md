@@ -36,6 +36,19 @@ JWT_LIFETIME=86400
 
 ## docker
 
+run all services
+
+```shell
+docker compose up -d
+```
+
+stop and remove containers
+
+```shell
+docker compose down
+```
+
+
 | parameters        | value      |
 |-------------------|------------|
 | name container    | eventHub   |
