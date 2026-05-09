@@ -2,7 +2,7 @@ package com.event.manager.api.location;
 
 import com.event.manager.domain.LocationMapper;
 import com.event.manager.domain.location.LocationDto;
-import com.event.manager.domain.location.LocationService;
+import com.event.manager.domain.location.LocationManager;
 import com.event.manager.filter.LocationSearchFilter;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -33,7 +33,7 @@ import static org.springframework.data.web.config.EnableSpringDataWebSupport.Pag
 @EnableSpringDataWebSupport(pageSerializationMode = VIA_DTO)
 public class LocationController {
     private final LocationMapper locationMapper;
-    private final LocationService locationService;
+    private final LocationManager locationManager;
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
@@ -42,8 +42,7 @@ public class LocationController {
     public LocationResponse createLocation(@RequestBody @Valid LocationPostRequest request) {
         log.info("Received a request to create a location {}", request.name());
         LocationDto domain = locationMapper.toDomain(request);
-
-        return locationMapper.toResponse(locationService.createLocation(domain));
+        return locationMapper.toResponse(locationManager.createLocation(domain));
     }
 
 
@@ -57,7 +56,7 @@ public class LocationController {
         log.info("Received a request to update a location by ID={}", id);
         LocationDto domain = locationMapper.toDomain(request);
 
-        return locationMapper.toResponse(locationService.updateLocation(id, domain));
+        return locationMapper.toResponse(locationManager.updateLocation(id, domain));
     }
 
     @PatchMapping("/{id}")
@@ -70,7 +69,7 @@ public class LocationController {
         log.info("Received a request to patch a location by ID={}", id);
         LocationDto domain = locationMapper.toDomain(patchRequest);
 
-        return locationMapper.toResponse(locationService.patchLocation(id, domain));
+        return locationMapper.toResponse(locationManager.patchLocation(id, domain));
     }
 
     @DeleteMapping("/{id}")
@@ -78,7 +77,7 @@ public class LocationController {
     @PreAuthorize("hasAuthority('ADMIN')")
     @Operation(security = { @SecurityRequirement(name = "bearer-key") })
     public void deleteLocation(@PathVariable Long id) {
-        locationService.delete(id);
+        locationManager.delete(id);
     }
 
     @GetMapping("/{id}")
@@ -87,7 +86,7 @@ public class LocationController {
     public LocationResponse getLocationById(@PathVariable Long id) {
         log.info("Received a request to get a location by ID={}", id);
 
-        return locationMapper.toResponse(locationService.getLocationById(id));
+        return locationMapper.toResponse(locationManager.getLocationById(id));
     }
 
     @GetMapping
@@ -96,6 +95,6 @@ public class LocationController {
     public Page<LocationResponse> getAllLocations(LocationSearchFilter filter) {
         log.info("Received a request to get a locations by filter={}", filter.toLogMessage());
 
-        return locationService.getAllLocation(filter).map(locationMapper::toResponse);
+        return locationManager.getAllLocation(filter).map(locationMapper::toResponse);
     }
 }

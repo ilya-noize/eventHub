@@ -1,6 +1,7 @@
 package com.event.notifier.kafka;
 
 import com.event.common.event.EventNotificationPayload;
+import com.event.notifier.db.RedisNotificationsCounter;
 import com.event.notifier.domain.EventNotificationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,6 +16,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class EventKafkaListener implements KafkaListenable<EventNotificationPayload> {
     private final EventNotificationService eventNotificationService;
+    private final RedisNotificationsCounter notificationsCounter;
 
     /**
      * Events topic listener
@@ -34,6 +36,7 @@ public class EventKafkaListener implements KafkaListenable<EventNotificationPayl
         var value = consumerRecord.value();
         if (eventNotificationService.notExistsByKey(key)) {
             eventNotificationService.save(key, value);
+            value.getSubscribers().forEach(notificationsCounter::increment);
         }
     }
 }

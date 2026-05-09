@@ -47,34 +47,43 @@ public class EventEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     protected Long id;
 
+    @TrackChange
     @Column(name = "name", nullable = false)
     private String name;
 
     @Column(name = "owner_id", nullable = false)
     private Long ownerId;
 
+    @TrackChange
     @Column(name = "max_places", nullable = false)
     private Integer maxPlaces;
 
+    @TrackChange
     @Column(name = "occupied_place", nullable = false)
     private Integer occupiedPlaces;
 
+    @TrackChange
     @OneToMany(mappedBy = "event")
     private Set<EventRegistrationEntity> registrations;
 
+    @TrackChange
     @Column(name = "date", nullable = false)
     private LocalDateTime date;
 
+    @TrackChange
     @Column(name = "cost", nullable = false)
     private BigDecimal cost;
 
+    @TrackChange
     @Column(name = "duration", nullable = false)
     private Integer duration;
 
+    @TrackChange
     @ManyToOne(fetch = FetchType.LAZY, cascade = {CascadeType.MERGE, CascadeType.PERSIST})
     @JoinColumn(name="location_id")
     private LocationEntity location;
 
+    @TrackChange
     @Column(name = "status", nullable = false)
     private String status;
 
@@ -90,5 +99,14 @@ public class EventEntity {
                 .duration(this.duration)
                 .location(this.location)
                 .status(this.status);
+    }
+
+    /**
+     * Check if the current time is before than starting data
+     * AND the state equals WAIT_START
+     * @return true/false
+     */
+    public boolean notStartedYet() {
+        return status.equals(EventStatus.WAIT_START.name());
     }
 }

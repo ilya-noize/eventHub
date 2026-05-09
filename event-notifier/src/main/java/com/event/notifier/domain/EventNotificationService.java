@@ -8,6 +8,7 @@ import com.event.notifier.db.Notification;
 import com.event.notifier.db.NotificationEventPayload;
 import com.event.notifier.db.NotificationEventPayloadRepository;
 import com.event.notifier.db.NotificationRepository;
+import com.event.notifier.db.RedisNotificationsCounter;
 import com.event.security.AuthorizationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,12 +27,14 @@ public class EventNotificationService {
     private final AuthorizationService authorizationService;
     private final NotificationRepository notificationRepository;
     private final NotificationEventPayloadRepository notificationEventPayloadRepository;
+    private final RedisNotificationsCounter notificationsCounter;
     private final JsonMapper jacksonJsonMapper;
 
     @Transactional
     public void markNotificationAsRead(List<Long> ids) {
         Long userId = authorizationService.getCurrentAuthorizedUserId();
-        notificationRepository.markNotificationAsRead(userId, ids);
+        Long affectedRowsCount = notificationRepository.markNotificationAsRead(userId, ids);
+        notificationsCounter.decrement(userId, affectedRowsCount);
     }
 
     @Transactional(readOnly = true)
@@ -41,16 +44,16 @@ public class EventNotificationService {
         return allByUserId.isEmpty()
                 ? List.of()
                 : allByUserId.stream()
-                .map(note -> {
-                    String eventTypeName = note.getPayload().getEventType();
+                .map(n -> {
+                    String eventTypeName = n.getPayload().getEventType();
                     return NotificationResponse.builder()
-                            .notificationId(note.getId())
+                            .notificationId(n.getId())
                             .type(eventTypeName)
-                            .eventId(note.getEventId())
-                            .createdAt(note.getCreatedAt())
-                            .isRead(note.isHaveRead())
+                            .eventId(n.getEventId())
+                            .createdAt(n.getCreatedAt())
+                            .isRead(n.isHaveRead())
                             .message(buildMessage(eventTypeName))
-                            .payload(note.getPayload().getPayloadJson())
+                            .payload(n.getPayload().getPayloadJson())
                             .build();
                 })
                 .toList();

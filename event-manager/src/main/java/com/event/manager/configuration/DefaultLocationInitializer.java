@@ -1,7 +1,7 @@
 package com.event.manager.configuration;
 
 import com.event.manager.domain.location.LocationDto;
-import com.event.manager.domain.location.LocationService;
+import com.event.manager.domain.location.LocationManager;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Profile;
@@ -17,7 +17,7 @@ import java.util.List;
 @Profile("dev")
 @RequiredArgsConstructor
 public class DefaultLocationInitializer {
-    private final LocationService locationService;
+    private final LocationManager locationManager;
 
     @PostConstruct
     public void init() {
@@ -29,8 +29,8 @@ public class DefaultLocationInitializer {
                 List<LocationDto> locations = mapper.readValue(inputStream,
                         mapper.getTypeFactory().constructCollectionType(List.class, LocationDto.class));
                 locations.stream()
-                        .filter(locationService::isUniqueNameAndAddressLocation)
-                        .forEach(locationService::createLocation);
+                        .filter(locationManager::isUniqueNameAndAddressLocation)
+                        .forEach(locationManager::createLocation);
             }
         } catch (IOException e) {
             throw new RuntimeException("File " + locationJson + " not found:" + e.getMessage(), e);

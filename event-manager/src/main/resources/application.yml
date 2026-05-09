@@ -11,6 +11,9 @@ spring:
     username: ${HUB_POSTGRES_USER}
     password: ${HUB_POSTGRES_USER}
   jpa:
+    properties:
+      hibernate:
+        default_batch_fetch_size: 100
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
       ddl-auto: create-drop
@@ -23,6 +26,8 @@ spring:
 server:
   port: ${HUB_PORT}
 
+batch:
+  size: 100
 #management:
 #  endpoints:
 #    web:
